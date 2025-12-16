@@ -2,14 +2,12 @@
 #include "globals.h"
 #include "input.h"
 
-
 namespace
 {
-	const int BGCOLOR[3] = {0, 0, 0}; // 背景色{ 255, 250, 205 }; // 背景色
+	const int BGCOLOR[3] = {23, 24, 75}; // 背景色{ 255, 250, 205 }; // 背景色
 	int crrTime;
 	int prevTime;
 }
-
 
 float gDeltaTime = 0.0f; // フレーム間の時間差
 
@@ -31,22 +29,29 @@ void DxInit()
 	SetDrawScreen(DX_SCREEN_BACK);
 }
 
-void MyGame()
+void Initialize()
 {
-
-	DrawFormatString(100, 100, GetColor(0, 0, 0), "ウィンドウのテスト");
-	static int timer = 0;
-	timer++;
-	DrawFormatString(100, 150, GetColor(0, 0, 0), "%010d", timer);
 }
 
+void Update()
+{
+}
 
+void Draw()
+{
+}
+
+void Release()
+{
+}
 
 int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPSTR lpCmdLine, _In_ int nCmdShow)
 {
 	DxInit();
 	crrTime = GetNowCount();
 	prevTime = GetNowCount();
+
+	Initialize();//初期化処理
 
 	while (true)
 	{
@@ -59,7 +64,8 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 		gDeltaTime = deltaTime; // グローバル変数に保存
 
 		//ここにやりたい処理を書く
-
+		Update();//更新処理
+		Draw();//描画処理
 
 		ScreenFlip();
 		WaitTimer(16);
@@ -72,6 +78,7 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 			break;
 	}
 
+	Release();//終了処理
 	DxLib_End();
 	return 0;
 }
