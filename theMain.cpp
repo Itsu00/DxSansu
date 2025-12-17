@@ -34,7 +34,7 @@ void DxInit()
 
 void Initialize()
 {
-	player = new Player({ 600, 300 }, { 0, 0 }, GetColor(255, 0, 0), 
+	player = new Player({ 500, 450 }, { 0, 0 }, GetColor(255, 0, 0), 
 						{ 0, -1 }, 60.0f, 1.0f);
 }
 
