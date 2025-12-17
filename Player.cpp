@@ -3,6 +3,7 @@
 #include <cmath>
 #include "globals.h"
 #include "Math2D.h"
+#include "Input.h"
 
 namespace {
 	Vector2D World2Screen(const Vector2D& wpos)
@@ -57,6 +58,15 @@ void Player::Update()
 	vertex_[0] = { pos_.x + p[0].x, pos_.y + p[0].y };
 	vertex_[1] = { pos_.x + p[1].x, pos_.y + p[1].y };
 	vertex_[2] = { pos_.x + p[2].x, pos_.y + p[2].y };
+
+	if (Input::IsKeepKeyDown(KEY_INPUT_LEFT))
+	{
+		angle_ = angle_ + omega_ * GetDeltaTime();
+	}
+	if (Input::IsKeepKeyDown(KEY_INPUT_RIGHT))
+	{
+		angle_ = angle_ - omega_ * GetDeltaTime();
+	}
 }
 
 void Player::Draw()
@@ -70,4 +80,6 @@ void Player::Draw()
 				   scrPos[1].x, scrPos[1].y,
 				   scrPos[2].x, scrPos[2].y,
 				   GetColor(255, 0, 0), TRUE);
+
+	DrawFormatString(50, 50, GetColor(255, 255, 255), "RotAngleÅF%lf", angle_);
 }
