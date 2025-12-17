@@ -2,6 +2,7 @@
 #include <DxLib.h>
 #include <cmath>
 #include "globals.h"
+#include "Math2D.h"
 
 namespace {
 	Vector2D World2Screen(const Vector2D& wpos)

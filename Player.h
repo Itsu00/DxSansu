@@ -4,10 +4,13 @@ class Player :
     public Base
 {
 public:
-    Player();//コンストラクタ
-	Player(const Vector2D& pos, const Vector2D& vel, unsigned int color,
-		   const Vector2D& dir, float r, float omega);//コンストラクタ
-    ~Player();//デストラクタ
+    //コンストラクタ
+    Player();
+	Player(const Vector2D& pos, const Vector2D& vel, 
+           unsigned int color,
+		   const Vector2D& dir, float r, float omega);
+    //デストラクタ
+    ~Player();
     void Update() override;//オーバーライド
     void Draw() override;//オーバーライド
 public://セッターゲッターは全部インラインで書いたよ
