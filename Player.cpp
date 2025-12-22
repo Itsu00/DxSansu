@@ -14,6 +14,9 @@ namespace {
 		return(tmp);
 		//return{ wpos.x, WIN_HEIGHT - wpos.y };
 	}
+
+	const float DAMP = 0.995f;//減衰率
+	const float ACC = 200.0f;//加速度
 }
 
 //引数無しコンストラクタ
@@ -54,10 +57,12 @@ void Player::Update()
 	p[0].x = radius_ * p[0].x; p[0].y = radius_ * p[0].y;
 	p[1].x = radius_ * p[1].x; p[1].y = radius_ * p[1].y;
 	p[2].x = radius_ * p[2].x; p[2].y = radius_ * p[2].y;
+
 	//三角形の３頂点をdir_(ベクトル)とradius_(半径)とpos_(中心)から求める
 	vertex_[0] = { pos_.x + p[0].x, pos_.y + p[0].y };
 	vertex_[1] = { pos_.x + p[1].x, pos_.y + p[1].y };
 	vertex_[2] = { pos_.x + p[2].x, pos_.y + p[2].y };
+	//初期座標がここまでで決定
 
 	if (Input::IsKeepKeyDown(KEY_INPUT_LEFT))
 	{
@@ -67,6 +72,38 @@ void Player::Update()
 	{
 		angle_ = angle_ - omega_ * GetDeltaTime();
 	}
+
+	//原点に三角形を戻す
+	Mat2 toOrigin = Math2D::Translation({ -pos_.x, -pos_.y });
+	for (int i = 0; i < 3; i++)
+	{
+		vertex_[i] = Math2D::TransformPoint(vertex_[i], toOrigin);
+	}
+	Mat2 rotMat = Math2D::Rotation(angle_);//単位はラジアン
+	for (int i = 0; i < 3; i++)
+	{
+		vertex_[i] = Math2D::TransformPoint(vertex_[i], rotMat);
+	}
+	Mat2 toO = Math2D::Translation({ pos_.x, pos_.y });
+	for (int i = 0; i < 3; i++)
+	{
+		vertex_[i] = Math2D::TransformPoint(vertex_[i], toO);
+	}
+
+	dir_ = Math2D::FromAngle(angle_ + PI / 2.0f);
+
+	if (Input::IsKeepKeyDown(KEY_INPUT_SPACE))
+	{
+		vel_.x = vel_.x + dir_.x * ACC * GetDeltaTime();
+		vel_.y = vel_.y + dir_.y * ACC * GetDeltaTime();
+	}
+
+	//移動処理
+	pos_.x = pos_.x + vel_.x * GetDeltaTime();
+	pos_.y = pos_.y + vel_.y * GetDeltaTime();
+	//pos_ = Math2D::Add(pos_, Math2D::Mul(vel_, GetDeltaTime()));
+
+	vel_ = Math2D::Mul(vel_, DAMP);//減衰処理
 }
 
 void Player::Draw()

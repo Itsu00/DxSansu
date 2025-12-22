@@ -33,6 +33,7 @@ namespace Math2D
 	const float PI2 = 6.2831853072f;
 
 	// ---- ベクトル基本 ----
+	
 	// 2つのベクトルを加算する（a + b）
 	inline Vector2D Add(const Vector2D& a, const Vector2D& b)
 	{
@@ -52,6 +53,7 @@ namespace Math2D
 	}
 
 	// ---- 長さ ----
+	
 	// ベクトルの長さの2乗を求める（√を使わないので高速）
 	inline float LengthSq(const Vector2D& v)
 	{
@@ -74,6 +76,7 @@ namespace Math2D
 	}
 
 	// ---- 内積・外積 ----
+	
 	// 内積（Dot Product）
 	// 2つのベクトルの向きの近さを表す
 	inline float Dot(const Vector2D& a, const Vector2D& b)
@@ -89,6 +92,7 @@ namespace Math2D
 	}
 
 	// ---- 角度 ----
+	
 	// ベクトルの向きを角度（ラジアン）で取得する
 	// atan2 を使うことで全方向を正しく扱える
 	inline float Angle(const Vector2D& v)
@@ -103,6 +107,7 @@ namespace Math2D
 	}
 
 	// ---- 行列生成 ----
+	
 	// 単位行列（変換なし）
 	inline Mat2 Identity()
 	{
@@ -127,6 +132,7 @@ namespace Math2D
 	}
 
 	// ---- 行列合成 ----
+	
 	// 2つのアフィン行列を合成する（a の後に b を適用）
 	inline Mat2 Multiply(const Mat2& a, const Mat2& b)
 	{
@@ -142,6 +148,7 @@ namespace Math2D
 	}
 
 	// ---- 行列 × 点(ベクトル) ----
+	
 	// 点（ベクトル）にアフィン変換を適用する
 	// 回転・平行移動をまとめて行う
 	inline Vector2D TransformPoint(const Vector2D& v, const Mat2& m)

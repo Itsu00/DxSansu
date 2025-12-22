@@ -35,7 +35,7 @@ void DxInit()
 void Initialize()
 {
 	player = new Player({ 500, 450 }, { 0, 0 }, GetColor(255, 0, 0), 
-						{ 0, -1 }, 60.0f, 1.0f);
+						{ 0, -1 }, 30.0f, 2.0f);
 }
 
 void Update()
