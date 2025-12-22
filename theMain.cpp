@@ -1,7 +1,7 @@
 #include "DxLib.h"
 #include "globals.h"
 #include "input.h"
-#include "Player.h"
+#include "Stage.h"
 
 namespace
 {
@@ -9,7 +9,7 @@ namespace
 	int crrTime;
 	int prevTime;
 
-	Player* player = nullptr;
+	Stage* stage = nullptr;
 }
 
 float gDeltaTime = 0.0f; // ƒtƒŒ[ƒ€ŠÔ‚ÌŽžŠÔ·
@@ -34,22 +34,23 @@ void DxInit()
 
 void Initialize()
 {
-	player = new Player({ 500, 450 }, { 0, 0 }, GetColor(255, 0, 0), 
-						{ 0, -1 }, 30.0f, 2.0f);
+	stage = new Stage();
+	stage->Initialize();
 }
 
 void Update()
 {
-	player->Update();
+	stage->Update();
 }
 
 void Draw()
 {
-	player->Draw();
+	stage->Draw();
 }
 
 void Release()
 {
+	stage->Release();
 }
 
 int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPSTR lpCmdLine, _In_ int nCmdShow)

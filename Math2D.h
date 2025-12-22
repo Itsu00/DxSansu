@@ -32,6 +32,15 @@ namespace Math2D
 	const float PI = 3.14159265359f;
 	const float PI2 = 6.2831853072f;
 
+	inline Vector2D World2Screen(const Vector2D& wpos)//inline　書かないと怒られる
+	{
+		Vector2D tmp;//temporary = 作業領域
+		tmp.x = wpos.x;
+		tmp.y = WIN_HEIGHT - wpos.y;
+		return(tmp);
+		//return{ wpos.x, WIN_HEIGHT - wpos.y };
+	}
+
 	// ---- ベクトル基本 ----
 	
 	// 2つのベクトルを加算する（a + b）
