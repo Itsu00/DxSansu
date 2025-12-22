@@ -116,9 +116,9 @@ void Player::Update()
 void Player::Draw()
 {
 	Vector2D scrPos[3];
-	scrPos[0] = World2Screen(vertex_[0]);
-	scrPos[1] = World2Screen(vertex_[1]);
-	scrPos[2] = World2Screen(vertex_[2]);
+	scrPos[0] = Math2D::World2Screen(vertex_[0]);
+	scrPos[1] = Math2D::World2Screen(vertex_[1]);
+	scrPos[2] = Math2D::World2Screen(vertex_[2]);
 
 	DrawTriangleAA(scrPos[0].x, scrPos[0].y,
 				   scrPos[1].x, scrPos[1].y,

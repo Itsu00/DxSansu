@@ -1,4 +1,5 @@
 #pragma once
+#include "globals.h"
 #include <cmath>
 ///////////////////////////////////////////////
 // 2D ƒxƒNƒgƒ‹Œ^
