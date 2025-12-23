@@ -13,6 +13,14 @@ void Bullet::Update()
 	pos_.x = pos_.x + vel_.x * dt;
 	pos_.y = pos_.y + vel_.y * dt;
 	//pos_ = Math2D::Add(pos_, Math2D::Mul(vel_, dt));
+
+	//画面端ワープ
+	if (pos_.x < 0) pos_.x = WIN_WIDTH;//左端にいったら右端から出てくる
+	if (pos_.x > WIN_WIDTH) pos_.x = 0;//右端にいったら左端から出てくる
+	if (pos_.y < 0) pos_.y = WIN_HEIGHT;//上を過ぎたら下から出てくる
+	if (pos_.y > WIN_HEIGHT) pos_.y = 0;//下を過ぎたら上から出てくる
+	//弾が何秒生きるか
+	life_ = life_ - dt;
 }
 
 void Bullet::Draw()

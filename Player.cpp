@@ -93,7 +93,7 @@ void Player::Update()
 
 	dir_ = Math2D::FromAngle(angle_ + PI / 2.0f);
 
-	if (Input::IsKeepKeyDown(KEY_INPUT_SPACE))
+	if (Input::IsKeepKeyDown(KEY_INPUT_LCONTROL))
 	{
 		vel_.x = vel_.x + dir_.x * ACC * GetDeltaTime();
 		vel_.y = vel_.y + dir_.y * ACC * GetDeltaTime();
@@ -110,7 +110,7 @@ void Player::Update()
 	if (pos_.x < 0) pos_.x = WIN_WIDTH;//左端にいったら右端から出てくる
 	if (pos_.x > WIN_WIDTH) pos_.x = 0;//右端にいったら左端から出てくる
 	if (pos_.y < 0) pos_.y = WIN_HEIGHT;//上を過ぎたら下から出てくる
-	if (pos_.y > WIN_HEIGHT) pos_.y = 0;//下　　　　　　　を過ぎたら上から出てくる
+	if (pos_.y > WIN_HEIGHT) pos_.y = 0;//下を過ぎたら上から出てくる
 }
 
 void Player::Draw()

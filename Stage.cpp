@@ -3,6 +3,9 @@
 #include "Player.h"
 #include "globals.h"
 #include <DxLib.h>
+#include "Bullet.h"
+#include "Input.h"
+#include <vector>
 
 namespace
 {
@@ -14,6 +17,7 @@ namespace
 	const float START_OMEGA = 2.0f;
 	const unsigned int START_COLOR = GetColor(255, 0, 0);
 	Player* player = nullptr;
+	std::vector<Bullet*> bullets;//’eŠÛ‚Ì•ÛŠÇŒÉ
 }
 
 Stage::Stage()
@@ -32,11 +36,52 @@ void Stage::Initialize()
 
 void Stage::Update()
 {
+	//Ü–¡ŠúŒÀØ‚ê‚Ì’e‚ðÁ‚·
+	//DeleteBullet();
+	for (auto it = bullets.begin(); it != bullets.end();)
+	{
+		if ((*it)->IsDead() == true)
+		{
+			it = bullets.erase(it);//’e‚ðÁ‚·
+		}
+		else
+		{
+			it++;
+		}
+	}
+
 	player->Update();
+	if (!bullets.empty())
+	{
+		for (auto& itr : bullets)
+		{
+			itr->Update();
+		}
+	}
+
+	//ZƒL[‚ª‰Ÿ‚³‚ê‚½‚ç’eŠÛ‚ð¶¬
+	if (Input::IsKeyDown(KEY_INPUT_Z))
+	{
+		Vector2D pos = player->GetPos();
+		Vector2D v = Math2D::Mul(player->GetDirVec(), 300.0f);
+		unsigned int bcol = GetColor(255, 255, 255);
+		float r = 2;
+		float life = 2.0f;
+
+		Bullet* b = new Bullet(pos, v, bcol, r, life);
+		bullets.push_back(b);
+	}
 }
 
 void Stage::Draw()
 {
+	if (!bullets.empty())
+	{
+		for (auto& itr : bullets)
+		{
+			itr->Draw();
+		}
+	}
 	player->Draw();
 }
 
