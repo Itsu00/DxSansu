@@ -1,6 +1,7 @@
 #include "Stage.h"
 #include "Math2D.h"
 #include "Player.h"
+#include "Enemy.h"
 #include "globals.h"
 #include <DxLib.h>
 #include "Bullet.h"
@@ -32,6 +33,7 @@ void Stage::Initialize()
 {
 	player = new Player(START_POS, START_VAL, START_COLOR,
 						START_DIR, START_RADIUS, START_OMEGA);
+	enemy_ = new Enemy(8);
 }
 
 void Stage::Update()
@@ -83,6 +85,7 @@ void Stage::Draw()
 		}
 	}
 	player->Draw();
+	enemy_->Draw();
 }
 
 void Stage::Release()
