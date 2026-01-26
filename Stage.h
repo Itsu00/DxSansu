@@ -14,8 +14,8 @@ public:
 	void Draw();
 	void Release();
 private:
-	Player* player_;
-	Enemy* enemy_;
+	//Player* player_;
+	//Enemy* enemy_;
 	void DeleteBullet();
 	void ShootBullet();
 };

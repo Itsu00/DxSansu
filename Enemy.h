@@ -10,7 +10,7 @@ public:
     void Update() override;
     void Draw() override;
 private:
-    void MaleShape();//頂点座標初期化
+    void MakeShape();//頂点座標初期化
 private:
     int segment_;//円の分割数
     float radius_;//半径
