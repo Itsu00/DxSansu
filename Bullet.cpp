@@ -10,9 +10,9 @@ Bullet::Bullet(const Vector2D& pos, const Vector2D& vel, unsigned int color, flo
 void Bullet::Update()
 {
 	float dt = GetDeltaTime();
-	pos_.x = pos_.x + vel_.x * dt;
-	pos_.y = pos_.y + vel_.y * dt;
-	//pos_ = Math2D::Add(pos_, Math2D::Mul(vel_, dt));
+	//pos_.x = pos_.x + vel_.x * dt;
+	//pos_.y = pos_.y + vel_.y * dt;
+	pos_ = Math2D::Add(pos_, Math2D::Mul(vel_, dt));
 
 	//画面端ワープ
 	if (pos_.x < 0) pos_.x = WIN_WIDTH;//左端にいったら右端から出てくる

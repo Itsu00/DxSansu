@@ -17,6 +17,7 @@ namespace
 	const float START_RADIUS = 30.0f;
 	const float START_OMEGA = 2.0f;
 	const unsigned int START_COLOR = GetColor(255, 0, 0);
+	const unsigned int ENEMY_MAX = 8;//ìGÇÃêî
 	Player* player = nullptr;
 	std::vector<Bullet*> bullets;//íeä€ÇÃï€ä«å…
 	std::vector<Enemy*> enemies;//ìGÇÃï€ä«å…
@@ -37,8 +38,7 @@ void Stage::Initialize()
 	//enemy_ = new Enemy(8);
 
 	enemies.clear();
-	const int ENEMY_NUM = 8;//ìGÇÃêî
-	for (int i = 0; i < ENEMY_NUM; i++)
+	for (int i = 0; i < ENEMY_MAX; i++)
 	{
 		int segment = GetRand(8);//8ï™äÑ
 		Enemy* e = new Enemy(segment);
@@ -55,72 +55,56 @@ void Stage::Initialize()
 
 void Stage::Update()
 {
-	//è‹ñ°ä˙å¿êÿÇÍÇÃíeÇè¡Ç∑
-	//DeleteBullet();
-	for (auto it = bullets.begin(); it != bullets.end();)
+	for (auto& itr : bullets)
 	{
-		if ((*it)->IsDead())// == true
+		for (int i = 0; i < ENEMY_MAX; i++)
 		{
-			delete* it;
-			it = bullets.erase(it);//íeÇè¡Ç∑
-		}
-		else
-		{
-			++it;//++it
+			if (!enemies[i]->IsAlive()) continue;//ìGÇ™éÄÇÒÇ≈ÇΩÇÁÉXÉãÅ[
+			float dist = Math2D::Length(Math2D::Sub(itr->GetPos(), enemies[i]->GetPos()));
+			if (dist < enemies[i]->GetCollisionRadius())
+			{
+				//ìñÇΩÇ¡ÇΩ
+				enemies[i]->Dead();
+				itr->Dead();
+			}
 		}
 	}
 
+	//è‹ñ°ä˙å¿êÿÇÍÇÃíeÇè¡Ç∑
+	DeleteBullet();
+	for (int i = 0; i < ENEMY_MAX; i++)
+	{
+		enemies[i]->Update();//ìGÇÃçXêV
+	}
+
 	player->Update();
-	/*if (!bullets.empty())
+	if (!bullets.empty())
 	{
 		for (auto& itr : bullets)
 		{
 			itr->Update();
 		}
-	}*/
-	for (auto& b : bullets)
-	{
-		b->Update();
 	}
-	//Enemy çXêV
-	for (auto& e : enemies)
-	{
-		e->Update();
-	}
-
 	//ZÉLÅ[Ç™âüÇ≥ÇÍÇΩÇÁíeä€Çê∂ê¨
 	if (Input::IsKeyDown(KEY_INPUT_Z))
 	{
-		Vector2D pos = player->GetPos();
-		Vector2D v = Math2D::Mul(player->GetDirVec(), 300.0f);
-		/*unsigned int bcol = GetColor(255, 255, 255);
-		float r = 2;
-		float life = 2.0f;*/
-		Bullet* b = new Bullet(pos, v, GetColor(255, 255, 255), 2, 2.0f);
-		//Bullet* b = new Bullet(pos, v, bcol, r, life);
-		bullets.push_back(b);
+		shootBullet();
 	}
 }
 
 void Stage::Draw()
 {
-	/*if (!bullets.empty())
+	for (int i = 0; i < ENEMY_MAX; i++)
+	{
+		if (enemies[i]->IsAlive()) enemies[i]->Draw();//ìGÇÃï`âÊ
+	}
+
+	if (!bullets.empty())
 	{
 		for (auto& itr : bullets)
 		{
 			itr->Draw();
 		}
-	}
-	player->Draw();
-	enemy_->Draw();*/
-	for (auto& b : bullets)
-	{
-		b->Draw();
-	}
-
-	for (auto& e : enemies)
-	{
-		e->Draw();
 	}
 
 	player->Draw();
@@ -141,4 +125,33 @@ void Stage::Release()
 		delete e;
 	}
 	enemies.clear();
+}
+
+void Stage::DeleteBullet()
+{
+	//è‹ñ°ä˙å¿êÿÇÍÇÃíeÇè¡Ç∑
+	for (auto it = bullets.begin(); it != bullets.end();)
+	{
+		if ((*it)->IsDead() == true)
+		{
+			it = bullets.erase(it);//íeÇè¡Ç∑
+		}
+		else
+		{
+			++it;//++it
+		}
+	}
+}
+
+void Stage::shootBullet()
+{
+	Vector2D pos = player->GetPos();
+	Vector2D v = Math2D::Mul(player->GetDirVec(), 300.0f);
+	unsigned int bcol = GetColor(255, 255, 255);
+	float r = 2;
+	float life = 2.0f;
+
+	//Bullet* b = new Bullet(pos, v, GetColor(255, 255, 255), 2, 2.0f);
+	Bullet* b = new Bullet(pos, v, bcol, r, life);
+	bullets.push_back(b);
 }

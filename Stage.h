@@ -17,5 +17,5 @@ private:
 	//Player* player_;
 	//Enemy* enemy_;
 	void DeleteBullet();
-	void ShootBullet();
+	void shootBullet();
 };

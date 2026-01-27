@@ -10,8 +10,11 @@ public:
     void Update() override;
     void Draw() override;
     bool IsAlive() { return isAlive_; }
+    float GetCollisionRadius() { return radius_; }
+    void Dead() { isAlive_ = false; }
 private:
     void MakeShape();//’¸“_À•W‰Šú‰»
+
 private:
     int segment_;//‰~‚Ì•ªŠ„”
     float radius_;//”¼Œa
