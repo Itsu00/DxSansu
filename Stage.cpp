@@ -17,7 +17,7 @@ namespace
 	const float START_RADIUS = 30.0f;
 	const float START_OMEGA = 2.0f;
 	const unsigned int START_COLOR = GetColor(255, 0, 0);
-	const unsigned int ENEMY_MAX = 8;//“G‚Ì”
+	const unsigned int ENEMY_MAX = 100;//“G‚Ì”
 	Player* player = nullptr;
 	std::vector<Bullet*> bullets;//’eŠÛ‚Ì•ÛŠÇŒÉ
 	std::vector<Enemy*> enemies;//“G‚Ì•ÛŠÇŒÉ
@@ -65,6 +65,10 @@ void Stage::Update()
 			{
 				//“–‚½‚Á‚½
 				enemies[i]->Dead();
+				//TODO
+				//•ª—ô‚Ìˆ—‚ğ‚±‚±‚Å‚â‚è‚½‚¢
+				//‘å‚©’†‚©¬‚©‚ğ”»’è‚µ‚Ä
+				//‘å‚È‚ç’†‚ğ2`4‚ÂA’†‚È‚ç¬‚ğ2`4‚ÂA¬‚È‚çÁ‚¦‚é
 				itr->Dead();
 			}
 		}
