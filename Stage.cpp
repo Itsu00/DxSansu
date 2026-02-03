@@ -18,6 +18,7 @@ namespace
 	const float START_OMEGA = 2.0f;
 	const unsigned int START_COLOR = GetColor(255, 0, 0);
 	const unsigned int ENEMY_MAX = 100;//“G‚Ì”
+	const unsigned int ENEMY_NUM = 5;//Å‰‚ÉoŒ»‚·‚é“G‚Ì”
 	Player* player = nullptr;
 	std::vector<Bullet*> bullets;//’eŠÛ‚Ì•ÛŠÇŒÉ
 	std::vector<Enemy*> enemies;//“G‚Ì•ÛŠÇŒÉ
@@ -38,10 +39,11 @@ void Stage::Initialize()
 	//enemy_ = new Enemy(8);
 
 	enemies.clear();
-	for (int i = 0; i < ENEMY_MAX; i++)
+	enemies.reserve(ENEMY_NUM);
+	for (int i = 0; i < ENEMY_NUM; i++)
 	{
 		int segment = GetRand(8);//8•ªŠ„
-		Enemy* e = new Enemy(segment);
+		Enemy* e = new Enemy(Enemy::Size::LARGE, segment);
 
 		//‰æ–ÊŠOƒXƒ^[ƒg(ã‚©‚ç)
 		Vector2D pos = {
@@ -57,26 +59,52 @@ void Stage::Update()
 {
 	for (auto& itr : bullets)
 	{
-		for (int i = 0; i < ENEMY_MAX; i++)
+		for (int i = 0; i < enemies.size(); i++)
 		{
 			if (!enemies[i]->IsAlive()) continue;//“G‚ª€‚ñ‚Å‚½‚çƒXƒ‹[
 			float dist = Math2D::Length(Math2D::Sub(itr->GetPos(), enemies[i]->GetPos()));
 			if (dist < enemies[i]->GetCollisionRadius())
 			{
 				//“–‚½‚Á‚½
-				enemies[i]->Dead();
+				enemies[i]->Dead();//“G‚ğÁ‚·
 				//TODO
 				//•ª—ô‚Ìˆ—‚ğ‚±‚±‚Å‚â‚è‚½‚¢
 				//‘å‚©’†‚©¬‚©‚ğ”»’è‚µ‚Ä
 				//‘å‚È‚ç’†‚ğ2`4‚ÂA’†‚È‚ç¬‚ğ2`4‚ÂA¬‚È‚çÁ‚¦‚é
-				itr->Dead();
+				Vector2D enemyPos = enemies[i]->GetPos();
+				Enemy::Size enemySize = enemies[i]->GetSize();
+				if (enemySize == Enemy::Size::SMALL)
+				{
+					//‰½‚à‚µ‚È‚¢
+				}
+				else if (enemySize == Enemy::Size::MEDIUM)
+				{
+					for (int i = 0; i < GetRand(4); i++)
+					{
+						Enemy* e = new Enemy(Enemy::Size::SMALL, 8);
+						e->SetPos(enemyPos);
+						e->SetVel({ (float)(GetRand(200) - 100), (float)(GetRand(200) - 100) });
+						enemies.push_back(e);
+					}
+				}
+				else if (enemySize == Enemy::Size::LARGE)
+				{
+					for (int i = 0; i < GetRand(4); i++)
+					{
+						Enemy* e = new Enemy(Enemy::Size::MEDIUM, 8);
+						e->SetPos(enemyPos);
+						e->SetVel({ (float)(GetRand(200) - 100), (float)(GetRand(200) - 100) });
+						enemies.push_back(e);
+					}
+				}
+				itr->Dead();//’e‚ğÁ‚·
 			}
 		}
 	}
 
 	//Ü–¡ŠúŒÀØ‚ê‚Ì’e‚ğÁ‚·
 	DeleteBullet();
-	for (int i = 0; i < ENEMY_MAX; i++)
+	for (int i = 0; i < enemies.size(); i++)
 	{
 		enemies[i]->Update();//“G‚ÌXV
 	}
@@ -98,7 +126,7 @@ void Stage::Update()
 
 void Stage::Draw()
 {
-	for (int i = 0; i < ENEMY_MAX; i++)
+	for (int i = 0; i < enemies.size(); i++)
 	{
 		if (enemies[i]->IsAlive()) enemies[i]->Draw();//“G‚Ì•`‰æ
 	}
