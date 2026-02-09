@@ -1,12 +1,13 @@
-#include "Stage.h"
+#include <DxLib.h>
+#include <vector>
+#include "globals.h"
 #include "Math2D.h"
+#include "Stage.h"
 #include "Player.h"
 #include "Enemy.h"
-#include "globals.h"
-#include <DxLib.h>
 #include "Bullet.h"
 #include "Input.h"
-#include <vector>
+#include "ExplosionEffect.h"
 
 namespace
 {
@@ -22,6 +23,7 @@ namespace
 	Player* player = nullptr;
 	std::vector<Bullet*> bullets;//弾丸の保管庫
 	std::vector<Enemy*> enemies;//敵の保管庫
+	std::vector<ExplosionEffect*> effects;//エフェクトの保管庫
 }
 
 Stage::Stage()
@@ -75,11 +77,12 @@ void Stage::Update()
 				Enemy::Size enemySize = enemies[i]->GetSize();
 				if (enemySize == Enemy::Size::SMALL)
 				{
-					//何もしない
+					ExplosionEffect* effect = new ExplosionEffect(enemyPos);
+					effects.push_back(effect);
 				}
 				else if (enemySize == Enemy::Size::MEDIUM)
 				{
-					for (int i = 0; i < GetRand(4); i++)
+					for (int i = 0; i < 4; i++)
 					{
 						Enemy* e = new Enemy(Enemy::Size::SMALL, 8);
 						e->SetPos(enemyPos);
@@ -89,7 +92,7 @@ void Stage::Update()
 				}
 				else if (enemySize == Enemy::Size::LARGE)
 				{
-					for (int i = 0; i < GetRand(4); i++)
+					for (int i = 0; i < 4; i++)
 					{
 						Enemy* e = new Enemy(Enemy::Size::MEDIUM, 8);
 						e->SetPos(enemyPos);
@@ -117,6 +120,12 @@ void Stage::Update()
 			itr->Update();
 		}
 	}
+
+	for (auto& effect : effects)
+	{
+		effect->Update();
+	}
+
 	//Zキーが押されたら弾丸を生成
 	if (Input::IsKeyDown(KEY_INPUT_Z))
 	{
@@ -139,6 +148,10 @@ void Stage::Draw()
 		}
 	}
 
+	for (auto& effect : effects)
+	{
+		effect->Draw();
+	}
 	player->Draw();
 }
 
