@@ -12,10 +12,11 @@ public:
 
 	struct Particle
 	{
-		Vector2D offset;
-		Vector2D vel;
-		float life;
-		float radius;
+		Vector2D offset;//位置
+		Vector2D vel;//速度
+		float life;//寿命
+		float radius;//半径
+		float alpha;//不透明度
 	};
 private:
 	bool isFinished_;//エフェクト終了フラグ

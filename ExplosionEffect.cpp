@@ -1,12 +1,14 @@
 #include "ExplosionEffect.h"
 #include "DxLib.h"
+#include "easefunction.h"
 
 namespace
 {
 	const float PARTICLE_LIFE = 1.0f;//パーティクルの寿命(秒)
 	const float PARTICLE_RADIUS = 1.5f;//パーティクルの半径
-	const float PARTICLE_SPEED[3] = { 50.0f, 800.0f, 120.0f };//パーティクルの速度
-	const float PARTICLE_DECAY = 0.95f;//減衰率
+	const float PARTICLE_SPEED[3] = { 50.0f, 80.0f, 120.0f };//パーティクルの速度
+	const float PARTICLE_DECAY = 0.95f;//パーティクルの速さの減衰率
+	const float PARTICLE_LIFE_FADE_START = PARTICLE_LIFE / 2.0f;//寿命の半分から色を薄くする
 }
 
 ExplosionEffect::ExplosionEffect(const Vector2D& pos, int particleCount)
@@ -23,6 +25,7 @@ ExplosionEffect::ExplosionEffect(const Vector2D& pos, int particleCount)
 		particle.vel = { 0.0f, 0.0f };
 		particle.life = PARTICLE_LIFE;//寿命
 		particle.radius = PARTICLE_RADIUS;//半径
+		particle.alpha = 1.0f;//不透明度1.0f
 
 		float angle_red = (float)GetRand(360) * (Math2D::PI / 180.0f);
 		Vector2D direction = Math2D::FromAngle(angle_red);
@@ -56,6 +59,18 @@ void ExplosionEffect::Update()
 			if (particle.life < 0.0f)
 				particle.life = 0.0f;
 		}
+
+		//不透明度の更新
+		/*if (particle.life < PARTICLE_LIFE_FADE_START)
+		{
+			particle.alpha = particle.life / PARTICLE_LIFE_FADE_START;
+		}
+		else
+		{
+			particle.alpha = 1.0f;
+		}*/
+		float lifeRatio = 1.0f - particle.life / PARTICLE_LIFE;
+		particle.alpha = 1.0f - Direct3D::EaseFunc["InExpo"](lifeRatio);
 	}
 
 	//全パーティクルが寿命切れならエフェクト終了
@@ -76,12 +91,11 @@ void ExplosionEffect::Draw()
 			//パーティクルの描画
 			Vector2D drawPos = Math2D::Add(GetPos(), particle.offset);
 			Vector2D screenPos = Math2D::World2Screen(drawPos);
-			DrawCircle((int)screenPos.x, (int)screenPos.y, particle.radius, GetColor(255, 255, 255));
+			int particleColor = GetColor((int)(255 * particle.alpha), 
+										 (int)(255 * particle.alpha), 
+										 (int)(255 * particle.alpha));
+			DrawCircle((int)screenPos.x, (int)screenPos.y, 
+						particle.radius, particleColor);
 		}
 	}
 }
-//time = 0;
-//for (time < 1.0f)
-//{
-//		
-// }

@@ -144,6 +144,7 @@
   <ItemGroup>
     <ClInclude Include="Base.h" />
     <ClInclude Include="Bullet.h" />
+    <ClInclude Include="easefunction.h" />
     <ClInclude Include="Enemy.h" />
     <ClInclude Include="ExplosionEffect.h" />
     <ClInclude Include="globals.h" />

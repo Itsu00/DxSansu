@@ -19,7 +19,7 @@ namespace
 	const float START_OMEGA = 2.0f;
 	const unsigned int START_COLOR = GetColor(255, 0, 0);
 	const unsigned int ENEMY_MAX = 100;//“G‚Ì”
-	const unsigned int ENEMY_NUM = 5;//Å‰‚ÉoŒ»‚·‚é“G‚Ì”
+	const unsigned int ENEMY_NUM = 8;//Å‰‚ÉoŒ»‚·‚é“G‚Ì”
 	Player* player = nullptr;
 	std::vector<Bullet*> bullets;//’eŠÛ‚Ì•ÛŠÇŒÉ
 	std::vector<Enemy*> enemies;//“G‚Ì•ÛŠÇŒÉ
