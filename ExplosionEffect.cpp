@@ -52,7 +52,7 @@ void ExplosionEffect::Update()
 			particle.offset = Math2D::Add(particle.offset, Math2D::Mul(particle.vel, dt));
 
 			//ë¨ìxå∏êä
-			particle.vel = Math2D::Mul(particle.vel, PARTICLE_DECAY);
+			//particle.vel = Math2D::Mul(particle.vel, PARTICLE_DECAY);
 
 			//éıñΩå∏è≠
 			particle.life -= dt;
