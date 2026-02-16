@@ -9,6 +9,7 @@ Bullet::Bullet(const Vector2D& pos, const Vector2D& vel, unsigned int color, flo
 
 void Bullet::Update()
 {
+	if (IsDead() == true) return;
 	float dt = GetDeltaTime();
 	//pos_.x = pos_.x + vel_.x * dt;
 	//pos_.y = pos_.y + vel_.y * dt;

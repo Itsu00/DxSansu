@@ -1,11 +1,12 @@
 #pragma once
 #include "Math2D.h"
+#include <string>
 
 class Base
 {
 public:
 	Base();
-	Base(const Vector2D& pos, const Vector2D& vel, unsigned int color);
+	Base(const Vector2D& pos, const Vector2D& vel, unsigned int color, const std::string& objName);
 	~Base();
 	virtual void Update(); //オーバーライドしそう
 	virtual void Draw(); //オーバーライドしそう
@@ -21,4 +22,5 @@ protected:
 	Vector2D pos_;//位置
 	Vector2D vel_;//速度
 	unsigned int Color_;//色 符号なし整数
+	std::string objName_;//オブジェクトの種類
 };
