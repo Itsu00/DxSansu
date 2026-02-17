@@ -34,6 +34,7 @@ ExplosionEffect::ExplosionEffect(const Vector2D& pos, int particleCount)
 		//ƒŠƒXƒg‚É’Ç‰Á
 		particles_.push_back(particle);
 	}
+	SetObjType(EFFECT);
 }
 
 void ExplosionEffect::Update()

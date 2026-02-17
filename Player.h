@@ -1,16 +1,17 @@
 #pragma once
 #include "Base.h"
+
 class Player :
     public Base
 {
 public:
     //コンストラクタ
     Player();
-	Player(const Vector2D& pos, const Vector2D& vel, 
-           unsigned int color,
+	Player(const Vector2D& pos, const Vector2D& vel, unsigned int color,
 		   const Vector2D& dir, float r, float omega);
     //デストラクタ
     ~Player();
+    //OverRide類
     void Update() override;//オーバーライド
     void Draw() override;//オーバーライド
 public://セッターゲッターは全部インラインで書いたよ

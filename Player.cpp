@@ -21,16 +21,18 @@ Player::Player()
 	vertex_[0] = { 0, 0 };
 	vertex_[1] = { 0, 1 };
 	vertex_[2] = { 0, 2 };
+	SetObjType(PLAYER);
 }
 
 Player::Player(const Vector2D& pos, const Vector2D& vel, unsigned int color, 
 			   const Vector2D& dir, float r, float omega)
-	:Base(pos, vel, color), dir_(dir), radius_(r), omega_(omega)
+	:Base(pos, vel, color), dir_(dir), radius_(r), omega_(omega), isAlive_(true)
 {
 	vertex_[0] = { 0, 0 };//0で初期化
 	vertex_[1] = { 0, 0 };//0で初期化
 	vertex_[2] = { 0, 0 };//0で初期化
 	angle_ = 0.0f;//0で初期化
+	SetObjType(PLAYER);
 }
 
 Player::~Player()
@@ -39,7 +41,7 @@ Player::~Player()
 
 void Player::Update()
 {
-	if (IsAlive() == false) return;
+	if (IsAlive() == false) return;//死んでたらスルー
 	const float PI = 3.14159265359;
 	//原点にある半径1の内接する三角形を考える
 	Vector2D p[3];
@@ -116,7 +118,7 @@ void Player::Update()
 
 void Player::Draw()
 {
-	if (this->IsAlive() == false) return;//死んでたらスルー
+	if (IsAlive() == false) return;//死んでたらスルー
 	Vector2D scrPos[3];
 	scrPos[0] = Math2D::World2Screen(vertex_[0]);
 	scrPos[1] = Math2D::World2Screen(vertex_[1]);

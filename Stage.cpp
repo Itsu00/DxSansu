@@ -24,7 +24,6 @@ namespace
 	Player* player = nullptr;
 	std::vector<Bullet*> bullets;//íeä€ÇÃï€ä«å…
 	std::vector<Enemy*> enemies;//ìGÇÃï€ä«å…
-	//std::vector<ExplosionEffect*> effects;//ÉGÉtÉFÉNÉgÇÃï€ä«å…
 
 	std::vector<Base*> objects;//Ç∑Ç◊ÇƒÇÃÉIÉuÉWÉFÉNÉgÇÃï€ä«å…
 	void AddObject(Base* obj)
@@ -84,59 +83,99 @@ void Stage::Initialize()
 
 void Stage::Update()
 {
-	for (auto& itr : bullets)
+	std::vector<Enemy*> aliveEnemies;
+	std::vector<Bullet*> aliveBullet;
+
+	aliveEnemies.clear();//îOÇÃÇΩÇﬂÇ©ÇÁÇ…Ç∑ÇÈ
+	aliveBullet.clear();//îOÇÃÇΩÇﬂÇ©ÇÁÇ…Ç∑ÇÈ
+
+	//for (int i = 0; i < objects.size(); i++){}Ç∆Ç‡èëÇØÇÈ
+	for(auto& obj : objects)
 	{
-		for (int i = 0; i < enemies.size(); i++)
+		if (obj->GetType() == OBJ_TYPE::ENEMY)
 		{
-			if (!enemies[i]->IsAlive()) continue;//ìGÇ™éÄÇÒÇ≈ÇΩÇÁÉXÉãÅ[
-			float dist = Math2D::Length(Math2D::Sub(itr->GetPos(), enemies[i]->GetPos()));
-			if (dist < enemies[i]->GetCollisionRadius())
+			Enemy* e = (Enemy*)obj;
+			if (e->IsAlive())
 			{
-				//ìñÇΩÇ¡ÇΩ
-				enemies[i]->Dead();//ìGÇè¡Ç∑
-				//TODO
-				//ï™óÙÇÃèàóùÇÇ±Ç±Ç≈Ç‚ÇËÇΩÇ¢
-				//ëÂÇ©íÜÇ©è¨Ç©ÇîªíËÇµÇƒ
-				//ëÂÇ»ÇÁíÜÇ2Å`4Ç¬ÅAíÜÇ»ÇÁè¨Ç2Å`4Ç¬ÅAè¨Ç»ÇÁè¡Ç¶ÇÈ
-				Vector2D enemyPos = enemies[i]->GetPos();
-				Enemy::Size enemySize = enemies[i]->GetSize();
-				if (enemySize == Enemy::Size::SMALL)
-				{
-					ExplosionEffect* effect = new ExplosionEffect(enemyPos);
-					//effects.push_back(effect);
-					AddObject(effect);
-				}
-				else if (enemySize == Enemy::Size::MEDIUM)
-				{
-					for (int i = 0; i < 4; i++)
-					{
-						Enemy* e = new Enemy(Enemy::Size::SMALL, 8);
-						e->SetPos(enemyPos);
-						e->SetVel({ (float)(GetRand(200) - 100), (float)(GetRand(200) - 100) });
-						enemies.push_back(e);
-						AddObject(e);
-					}
-				}
-				else if (enemySize == Enemy::Size::LARGE)
-				{
-					for (int i = 0; i < 4; i++)
-					{
-						Enemy* e = new Enemy(Enemy::Size::MEDIUM, 8);
-						e->SetPos(enemyPos);
-						e->SetVel({ (float)(GetRand(200) - 100), (float)(GetRand(200) - 100) });
-						enemies.push_back(e);
-						AddObject(e);
-					}
-				}
-				itr->Dead();//íeÇè¡Ç∑
+				aliveEnemies.push_back(e);
+			}
+		}
+		else if (obj->GetType() == OBJ_TYPE::BULLET)
+		{
+			Bullet* b = (Bullet*)obj;
+			if (b->IsDead())
+			{
+				aliveBullet.push_back(b);
 			}
 		}
 	}
 
+	for (auto& bullet : aliveBullet)
+	{
+		for (auto& enemy : aliveEnemies)
+		{
+			float dist = Math2D::Length(Math2D::Sub(bullet->GetPos(), enemy->GetPos()));
+			if (dist < enemy->GetCollisionRadius())
+			{
+				//ìñÇΩÇ¡ÇΩ
+				enemy->Dead();//ìGÇè¡Ç∑
+				bullet->Dead();//íeÇ‡è¡Ç∑
+			}
+		}
+	}
+
+	//for (auto& itr : bullets)
+	//{
+	//	for (int i = 0; i < enemies.size(); i++)
+	//	{
+	//		if (!enemies[i]->IsAlive()) continue;//ìGÇ™éÄÇÒÇ≈ÇΩÇÁÉXÉãÅ[
+	//		float dist = Math2D::Length(Math2D::Sub(itr->GetPos(), enemies[i]->GetPos()));
+	//		if (dist < enemies[i]->GetCollisionRadius())
+	//		{
+	//			//ìñÇΩÇ¡ÇΩ
+	//			enemies[i]->Dead();//ìGÇè¡Ç∑
+	//			//TODO
+	//			//ï™óÙÇÃèàóùÇÇ±Ç±Ç≈Ç‚ÇËÇΩÇ¢
+	//			//ëÂÇ©íÜÇ©è¨Ç©ÇîªíËÇµÇƒ
+	//			//ëÂÇ»ÇÁíÜÇ2Å`4Ç¬ÅAíÜÇ»ÇÁè¨Ç2Å`4Ç¬ÅAè¨Ç»ÇÁè¡Ç¶ÇÈ
+	//			Vector2D enemyPos = enemies[i]->GetPos();
+	//			Enemy::Size enemySize = enemies[i]->GetSize();
+	//			if (enemySize == Enemy::Size::SMALL)
+	//			{
+	//				ExplosionEffect* effect = new ExplosionEffect(enemyPos);
+	//				//effects.push_back(effect);
+	//				AddObject(effect);
+	//			}
+	//			else if (enemySize == Enemy::Size::MEDIUM)
+	//			{
+	//				for (int i = 0; i < 4; i++)
+	//				{
+	//					Enemy* e = new Enemy(Enemy::Size::SMALL, 8);
+	//					e->SetPos(enemyPos);
+	//					e->SetVel({ (float)(GetRand(200) - 100), (float)(GetRand(200) - 100) });
+	//					enemies.push_back(e);
+	//					AddObject(e);
+	//				}
+	//			}
+	//			else if (enemySize == Enemy::Size::LARGE)
+	//			{
+	//				for (int i = 0; i < 4; i++)
+	//				{
+	//					Enemy* e = new Enemy(Enemy::Size::MEDIUM, 8);
+	//					e->SetPos(enemyPos);
+	//					e->SetVel({ (float)(GetRand(200) - 100), (float)(GetRand(200) - 100) });
+	//					enemies.push_back(e);
+	//					AddObject(e);
+	//				}
+	//			}
+	//			itr->Dead();//íeÇè¡Ç∑
+	//		}
+	//	}
+	//}
+
 	//è‹ñ°ä˙å¿êÿÇÍÇÃíeÇè¡Ç∑
 	DeleteBullet();
-	
-	//player->Update();
+
 	UpdateAllObjects();
 
 	if (!bullets.empty())
@@ -146,11 +185,6 @@ void Stage::Update()
 			itr->Update();
 		}
 	}
-
-	/*for (auto& effect : effects)
-	{
-		effect->Update();
-	}*/
 
 	//ZÉLÅ[Ç™âüÇ≥ÇÍÇΩÇÁíeä€Çê∂ê¨
 	if (Input::IsKeyDown(KEY_INPUT_Z))
@@ -184,17 +218,43 @@ void Stage::Release()
 void Stage::DeleteBullet()
 {
 	//è‹ñ°ä˙å¿êÿÇÍÇÃíeÇè¡Ç∑
-	for (auto it = bullets.begin(); it != bullets.end();)
+	//î†ÇÃíÜêgÇämîFÅ®éÄÇÒÇ≈ÇÈíeÇ™Ç†Ç¡ÇΩÇÁdelete(î†ÇÕécÇÈÇΩÇﬂÅAnullptrÇì¸ÇÍÇƒÇ®Ç≠)
+	for (auto& itr : objects)
 	{
-		if ((*it)->IsDead() == true)
+		if (itr->GetType() == OBJ_TYPE::BULLET)
 		{
-			it = bullets.erase(it);//íeÇè¡Ç∑
+			Bullet* b = (Bullet*)(itr);
+			if (b->IsDead())
+			{
+				delete b;
+				itr = nullptr;//É|ÉCÉìÉ^ÇnullptrÇ…ÇµÇƒÇ®Ç≠
+			}
+		}
+	}
+	//î†ÇÃíÜêgÇämîFÅ®nullptrÇ™Ç†Ç¡ÇΩÇÁî†Ç©ÇÁè¡Ç∑(î†ÇãlÇﬂÇÈ)
+	for (auto& it = objects.begin(); it != objects.end();)
+	{
+		if (*it == nullptr)
+		{
+			it = objects.erase(it);
 		}
 		else
 		{
 			it++;
 		}
 	}
+
+	//for (auto it = bullets.begin(); it != bullets.end();)
+	//{
+	//	if ((*it)->IsDead() == true)
+	//	{
+	//		it = bullets.erase(it);//íeÇè¡Ç∑
+	//	}
+	//	else
+	//	{
+	//		it++;
+	//	}
+	//}
 }
 
 void Stage::shootBullet()
@@ -205,7 +265,6 @@ void Stage::shootBullet()
 	float r = 2;
 	float life = 2.0f;
 
-	//Bullet* b = new Bullet(pos, v, GetColor(255, 255, 255), 2, 2.0f);
 	Bullet* b = new Bullet(pos, v, bcol, r, life);
 	bullets.push_back(b);
 	AddObject(b);

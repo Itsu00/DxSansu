@@ -37,6 +37,7 @@ Enemy::Enemy(int segment)
 	angle_ = 0.0f;
 	omega_ = (float)(GetRand((int)(MAX_OMEGA * 100))) / 100.0f;//0から最大角度速度までのランダムな角速度
 	MakeShape();//頂点座標初期化
+	SetObjType(ENEMY);
 }
 
 Enemy::Enemy(Size size, int segment)
@@ -54,6 +55,7 @@ Enemy::Enemy(Size size, int segment)
 	angle_ = 0.0f;
 	omega_ = (float)(GetRand((int)(MAX_OMEGA * 100))) / 100.0f;//0から最大角度速度までのランダムな角速度
 	MakeShape();//頂点座標初期化
+	SetObjType(ENEMY);
 }
 
 Enemy::Enemy(const Vector2D& pos, const Vector2D& vel, Size size, int segment)
@@ -66,11 +68,12 @@ Enemy::Enemy(const Vector2D& pos, const Vector2D& vel, Size size, int segment)
 	angle_ = 0.0f;
 	omega_ = (float)(GetRand((int)(MAX_OMEGA * 100))) / 100.0f;//0から最大角度速度までのランダムな角速度
 	MakeShape();//頂点座標初期化
+	SetObjType(ENEMY);
 }
 
 void Enemy::Update()
 {
-	if (IsAlive() == false) return;
+	if (IsAlive() == false) return;//死んだらスルー
 	float dt = GetDeltaTime();
 	pos_ = Math2D::Add(pos_, Math2D::Mul(vel_, dt));
 	// 画面端ワープ
@@ -83,7 +86,7 @@ void Enemy::Update()
 
 void Enemy::Draw()
 {
-	if (this->IsAlive() == false) return;//死んでたらスルー
+	if (IsAlive() == false) return;//死んでたらスルー
 	//スクリーン座標に変換した頂点配列を作る
 	std::vector<Vector2D> scrVertex(segment_);
 
