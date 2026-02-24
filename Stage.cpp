@@ -22,8 +22,6 @@ namespace
 	const unsigned int ENEMY_MAX = 100;//敵の数
 	const unsigned int ENEMY_NUM = 8;//最初に出現する敵の数
 	Player* player = nullptr;
-	std::vector<Bullet*> bullets;//弾丸の保管庫
-	std::vector<Enemy*> enemies;//敵の保管庫
 
 	std::vector<Base*> objects;//すべてのオブジェクトの保管庫
 	//オブジェクトの保管庫にオブジェクトを追加する関数
@@ -70,25 +68,20 @@ void Stage::Initialize()
 	{
 		int segment = GetRand(8);//8分割
 		Enemy* e = new Enemy(Enemy::Size::LARGE, segment);
-
-		//画面外スタート(上から)
-		Vector2D pos = {
-			(float)GetRand(WIN_WIDTH), -50.0f
-		};
-		e->SetPos(pos);
-
-		enemies.push_back(e);
 		AddObject(e);
 	}
 }
 
 void Stage::Update()
 {
+	//敵の位置と、当たり判定の半径
+	//弾の位置
+	//isAlive_->falseにする手段
 	std::vector<Enemy*> aliveEnemies;
 	std::vector<Bullet*> aliveBullet;
 
-	aliveEnemies.clear();//念のためからにする
-	aliveBullet.clear();//念のためからにする
+	aliveEnemies.clear();//念のため空にする
+	aliveBullet.clear();//念のため空にする
 
 	//for (int i = 0; i < objects.size(); i++){}とも書ける
 	for(auto& obj : objects)
@@ -105,7 +98,7 @@ void Stage::Update()
 		{
 			//baseクラスのポインタを敵クラスのポインタに変換してる
 			Bullet* b = (Bullet*)obj;
-			if (b->IsDead()){
+			if (!b->IsDead()){
 				aliveBullet.push_back(b);
 			}
 		}
@@ -124,6 +117,28 @@ void Stage::Update()
 				//分裂の処理をここでやりたい
 				//大か中か小かを判定して
 				//大なら中を2～4つ、中なら小を2～4つ、小なら消してエフェクト生成
+				if (enemy->GetSize() != Enemy::Size::SMALL) {
+					int num = GetRand(3) + 2;//2～4のランダムな数
+					//大きさによって、分裂数変えると素敵
+					for (int i = 0; i < num; i++) {
+						Enemy* e = nullptr;
+						if (enemy->GetSize() == Enemy::Size::LARGE) {
+							e = new Enemy(Enemy::Size::MEDIUM, 8);
+						}
+						else {
+							e = new Enemy(Enemy::Size::SMALL, 8);
+						}
+						e->SetPos(enemy->GetPos());
+						//速さの設定は必要
+						e->SetVel({ (float)(GetRand(200) - 100), (float)(GetRand(200) - 100) });
+						AddObject(e);
+					}
+				}
+				else
+				{
+					ExplosionEffect* effect = new ExplosionEffect(enemy->GetPos());
+					AddObject(effect);
+				}
 				bullet->Dead();//弾も消す
 			}
 		}
@@ -183,15 +198,7 @@ void Stage::Update()
 	//死んでる敵を消す
 	DeleteEnemy();
 	UpdateAllObjects();
-
-	if (!bullets.empty())
-	{
-		for (auto& itr : bullets)
-		{
-			itr->Update();
-		}
-	}
-
+	
 	//Zキーが押されたら弾丸を生成
 	if (Input::IsKeyDown(KEY_INPUT_Z))
 	{
@@ -206,7 +213,7 @@ void Stage::Draw()
 
 void Stage::Release()
 {
-	delete player;
+	/*delete player;
 
 	for (auto& b : bullets)
 	{
@@ -218,7 +225,7 @@ void Stage::Release()
 	{
 		delete e;
 	}
-	enemies.clear();
+	enemies.clear();*/
 }
 
 void Stage::DeleteBullet()
@@ -251,17 +258,6 @@ void Stage::DeleteBullet()
 			it++;
 		}
 	}
-	//for (auto it = bullets.begin(); it != bullets.end();)
-	//{
-	//	if ((*it)->IsDead() == true)
-	//	{
-	//		it = bullets.erase(it);//弾を消す
-	//	}
-	//	else
-	//	{
-	//		it++;
-	//	}
-	//}
 }
 
 void Stage::DeleteEnemy()
@@ -273,7 +269,7 @@ void Stage::DeleteEnemy()
 			//base->継承クラスの時は、ちゃんと継承クラスのポインタに変換してあげないと、継承クラスのメンバ関数は呼び出せない
 			//継承クラス→baseクラスの返還は暗黙的に行われる
 			Enemy* b = (Enemy*)(itr);
-			if (b->IsAlive())
+			if (b->IsAlive() == false)
 			{
 				delete b;
 				itr = nullptr;//ポインタをnullptrにしておく
@@ -303,6 +299,5 @@ void Stage::shootBullet()
 	float life = 2.0f;
 
 	Bullet* b = new Bullet(pos, v, bcol, r, life);
-	//bullets.push_back(b);
 	AddObject(b);
 }

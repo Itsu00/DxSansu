@@ -15,6 +15,7 @@ public:
     Enemy(int segment);
     Enemy(Size size, int segment);
     Enemy(const Vector2D& pos, const Vector2D& vel, Size size, int segment);
+
     void Update() override;
     void Draw() override;
     bool IsAlive() { return isAlive_; }

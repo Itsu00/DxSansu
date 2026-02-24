@@ -2,7 +2,8 @@
 #include "Base.h"
 #include <vector>
 
-class ExplosionEffect : public Base
+class ExplosionEffect
+: public Base
 {
 public:
 	ExplosionEffect(const Vector2D& pos, int particleCount = 20);
@@ -22,4 +23,3 @@ private:
 	bool isFinished_;//エフェクト終了フラグ
 	std::vector<Particle> particles_;//パーティクル群
 };
-

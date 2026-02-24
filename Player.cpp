@@ -1,8 +1,8 @@
 #include "Player.h"
+#include "Math2D.h"
 #include <DxLib.h>
 #include <cmath>
 #include "globals.h"
-#include "Math2D.h"
 #include "Input.h"
 
 namespace 
@@ -42,7 +42,7 @@ Player::~Player()
 void Player::Update()
 {
 	if (IsAlive() == false) return;//死んでたらスルー
-	const float PI = 3.14159265359;
+	const float PI = 3.14159265359f;
 	//原点にある半径1の内接する三角形を考える
 	Vector2D p[3];
 	p[0] = { 0.0f, 1.0f };

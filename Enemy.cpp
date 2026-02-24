@@ -95,7 +95,7 @@ void Enemy::Draw()
 		//‰ñ“]‚ð‚©‚¯‚é
 		Mat2 rotMat = Math2D::Rotation(angle_);
 		scrVertex[i] = Math2D::TransformPoint(vertex_[i], rotMat);
-		scrVertex[i] = Math2D::Add(pos_, vertex_[i]);
+		scrVertex[i] = Math2D::Add(pos_, scrVertex[i]);
 		scrVertex[i] = Math2D::World2Screen(scrVertex[i]);
 	}
 
@@ -139,11 +139,11 @@ float Enemy::RandomRadius(Size size)
 	switch (size)
 	{
 	case Size::SMALL:
-		return SMALL_RADIUS_MIN + GetRand((int)SMALL_RADIUS_MAX - SMALL_RADIUS_MIN);
+		return SMALL_RADIUS_MIN + (float)GetRand((int)SMALL_RADIUS_MAX - SMALL_RADIUS_MIN);
 	case Size::MEDIUM:
-		return MEDIUM_RADIUS_MIN + GetRand((int)MEDIUM_RADIUS_MAX - MEDIUM_RADIUS_MIN);
+		return MEDIUM_RADIUS_MIN + (float)GetRand((int)MEDIUM_RADIUS_MAX - MEDIUM_RADIUS_MIN);
 	case Size::LARGE:
-		return LARGE_RADIUS_MIN + GetRand((int)LARGE_RADIUS_MAX - LARGE_RADIUS_MIN);
+		return LARGE_RADIUS_MIN + (float)GetRand((int)LARGE_RADIUS_MAX - LARGE_RADIUS_MIN);
 	default:
 		return 1.0f;
 	}
