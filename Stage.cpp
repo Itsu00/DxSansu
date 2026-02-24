@@ -26,6 +26,7 @@ namespace
 	std::vector<Enemy*> enemies;//敵の保管庫
 
 	std::vector<Base*> objects;//すべてのオブジェクトの保管庫
+	//オブジェクトの保管庫にオブジェクトを追加する関数
 	void AddObject(Base* obj)
 	{
 		objects.push_back(obj);
@@ -62,8 +63,8 @@ void Stage::Initialize()
 						START_DIR, START_RADIUS, START_OMEGA);
 	AddObject(player);
 
-	enemies.clear();
-	enemies.reserve(ENEMY_NUM);
+	//enemies.clear();
+	//enemies.reserve(ENEMY_NUM);
 
 	for (int i = 0; i < ENEMY_NUM; i++)
 	{
@@ -94,17 +95,17 @@ void Stage::Update()
 	{
 		if (obj->GetType() == OBJ_TYPE::ENEMY)
 		{
+			//baseクラスのポインタを敵クラスのポインタに変換してる
 			Enemy* e = (Enemy*)obj;
-			if (e->IsAlive())
-			{
+			if (e->IsAlive()){
 				aliveEnemies.push_back(e);
 			}
 		}
 		else if (obj->GetType() == OBJ_TYPE::BULLET)
 		{
+			//baseクラスのポインタを敵クラスのポインタに変換してる
 			Bullet* b = (Bullet*)obj;
-			if (b->IsDead())
-			{
+			if (b->IsDead()){
 				aliveBullet.push_back(b);
 			}
 		}
@@ -175,7 +176,8 @@ void Stage::Update()
 
 	//賞味期限切れの弾を消す
 	DeleteBullet();
-
+	//死んでる敵を消す
+	DeleteEnemy();
 	UpdateAllObjects();
 
 	if (!bullets.empty())
@@ -223,6 +225,8 @@ void Stage::DeleteBullet()
 	{
 		if (itr->GetType() == OBJ_TYPE::BULLET)
 		{
+			//base->継承クラスの時は、ちゃんと継承クラスのポインタに変換してあげないと、継承クラスのメンバ関数は呼び出せない
+			//継承クラス→baseクラスの返還は暗黙的に行われる
 			Bullet* b = (Bullet*)(itr);
 			if (b->IsDead())
 			{
@@ -232,7 +236,7 @@ void Stage::DeleteBullet()
 		}
 	}
 	//箱の中身を確認→nullptrがあったら箱から消す(箱を詰める)
-	for (auto& it = objects.begin(); it != objects.end();)
+	for (auto it = objects.begin(); it != objects.end();)
 	{
 		if (*it == nullptr)
 		{
@@ -243,7 +247,6 @@ void Stage::DeleteBullet()
 			it++;
 		}
 	}
-
 	//for (auto it = bullets.begin(); it != bullets.end();)
 	//{
 	//	if ((*it)->IsDead() == true)
@@ -257,6 +260,36 @@ void Stage::DeleteBullet()
 	//}
 }
 
+void Stage::DeleteEnemy()
+{
+	for (auto& itr : objects)
+	{
+		if (itr->GetType() == OBJ_TYPE::ENEMY)
+		{
+			//base->継承クラスの時は、ちゃんと継承クラスのポインタに変換してあげないと、継承クラスのメンバ関数は呼び出せない
+			//継承クラス→baseクラスの返還は暗黙的に行われる
+			Enemy* b = (Enemy*)(itr);
+			if (b->IsAlive())
+			{
+				delete b;
+				itr = nullptr;//ポインタをnullptrにしておく
+			}
+		}
+	}
+	//箱の中身を確認→nullptrがあったら箱から消す(箱を詰める)
+	for (auto it = objects.begin(); it != objects.end();)
+	{
+		if (*it == nullptr)
+		{
+			it = objects.erase(it);
+		}
+		else
+		{
+			it++;
+		}
+	}
+}
+
 void Stage::shootBullet()
 {
 	Vector2D pos = player->GetPos();
@@ -266,6 +299,6 @@ void Stage::shootBullet()
 	float life = 2.0f;
 
 	Bullet* b = new Bullet(pos, v, bcol, r, life);
-	bullets.push_back(b);
+	//bullets.push_back(b);
 	AddObject(b);
 }
