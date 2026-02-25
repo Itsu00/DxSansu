@@ -86,160 +86,29 @@ void Stage::Update()
 {
 	if (stageState == 0) {
 		//タイトル画面のアップデート処理
-		//ゲームスタート用のキーが押されたら、stageStateを1にする
-		if (Input::IsKeyDown(KEY_INPUT_NUMPADENTER)){
-			stageState = 1;
-		}
-	}else if (stageState == 1){
-		//プレイヤーvs敵の当たり判定
-		Player_vs_Enemy();
-		//敵vs弾の当たり判定
-		Enemy_vs_Bullet();
-
-		//賞味期限切れの弾を消す
-		DeleteBullet();
-		//死んでる敵を消す
-		DeleteEnemy();
-		//エフェクトを消す
-		DeleteEffect();
-
-		//すべてのオブジェクトを更新
-		UpdateAllObjects();
-
-		//Zキーが押されたら弾丸を生成
-		if (Input::IsKeyDown(KEY_INPUT_Z)){
-			shootBullet();
-		}
+		TitleUpdate();
+	}
+	else if (stageState == 1) {
+		//プレイ画面のアップデート処理
+		PlayUpdate();
 	}
 	else if (stageState == 2) {
-		//ゲームオーバーの処理
-	}
-}
-
-void Stage::Enemy_vs_Bullet()
-{
-	//敵vs弾の当たり判定
-	//敵の位置と、当たり判定の半径
-	//弾の位置
-	//isAlive_->falseにする手段
-	std::vector<Enemy*> aliveEnemies;
-	std::vector<Bullet*> aliveBullet;
-
-	aliveEnemies.clear();//念のため空にする
-	aliveBullet.clear();//念のため空にする
-
-	//for (int i = 0; i < objects.size(); i++){}とも書ける
-	for (auto& obj : objects){
-		if (obj->GetType() == OBJ_TYPE::ENEMY){
-			//baseクラスのポインタを敵クラスのポインタに変換してる
-			Enemy* e = (Enemy*)obj;
-			if (e->IsAlive()) {
-				aliveEnemies.push_back(e);
-			}
-		}
-		else if (obj->GetType() == OBJ_TYPE::BULLET){
-			//baseクラスのポインタを敵クラスのポインタに変換してる
-			Bullet* b = (Bullet*)obj;
-			if (!b->IsDead()) {
-				aliveBullet.push_back(b);
-			}
-		}
-	}
-
-	for (auto& bullet : aliveBullet){
-		for (auto& enemy : aliveEnemies){
-			float dist = Math2D::Length(Math2D::Sub(bullet->GetPos(), enemy->GetPos()));
-			if (dist < enemy->GetCollisionRadius()){
-				//当たった
-				enemy->Dead();//敵を消す
-				int sc[3] = { 20, 50, 100 };//大中小のスコア
-				gameScore_ += sc[enemy->GetSize()];//スコア加算
-				//TODO
-				//分裂の処理をここでやりたい
-				//大か中か小かを判定して
-				//大なら中を2～4つ、中なら小を2～4つ、小なら消してエフェクト生成
-				if (enemy->GetSize() != Enemy::Size::SMALL) {
-					int num = GetRand(3) + 2;//2～4のランダムな数
-					//大きさによって、分裂数変えると素敵
-					for (int i = 0; i < num; i++) {
-						Enemy* e = nullptr;
-						if (enemy->GetSize() == Enemy::Size::LARGE) {
-							e = new Enemy(Enemy::Size::MEDIUM, 8);
-						}
-						else {
-							e = new Enemy(Enemy::Size::SMALL, 8);
-						}
-						e->SetPos(enemy->GetPos());
-						//速さの設定は必要
-						e->SetVel({ (float)(GetRand(200) - 100), (float)(GetRand(200) - 100) });
-						AddObject(e);
-					}
-				}
-				else{
-					ExplosionEffect* effect = new ExplosionEffect(enemy->GetPos());
-					effect->SetCharaColor(GetColor(GetRand(255), GetRand(255), GetRand(255)));
-					AddObject(effect);
-				}
-				bullet->Dead();//弾も消す
-			}
-		}
-	}
-}
-
-void Stage::Player_vs_Enemy()
-{
-	std::vector<Enemy*> aliveEnemies;
-	aliveEnemies.clear();//念のため空にする
-	Player* player = nullptr;
-
-	for (auto& obj : objects) {
-		if (obj->GetType() == OBJ_TYPE::PLAYER) {
-			player = (Player*)obj;
-		}
-		else if (obj->GetType() == OBJ_TYPE::ENEMY) {
-			//baseクラスのポインタを敵クラスのポインタに変換してる
-			Enemy* e = (Enemy*)obj;
-			if (e->IsAlive()) {
-				aliveEnemies.push_back(e);
-			}
-		}
-	}
-
-	if (player == nullptr || player->IsAlive() == false)
-		return;//プレイヤーがいるかどうか
-
-	for (auto& enemy : aliveEnemies) {
-		//①敵とプレイヤーの距離を計算
-		float dist = Math2D::Length(Math2D::Sub(player->GetPos(), enemy->GetPos()));
-		//②敵とプレイヤーの当たり判定の半径を足したものより、
-		float collisionDist = player->GetCollisionRadius() + enemy->GetCollisionRadius();
-		//　距離が近かったら当たったとする
-		if (dist < collisionDist){
-			//プレイヤーを死なせる
-			player->Dead();
-			//赤いエフェクトを生成
-			ExplosionEffect* effect = new ExplosionEffect(enemy->GetPos(), 50);
-			effect->SetCharaColor(GetColor(255, 0, 0));
-			AddObject(effect);
-			break;
-		 }
+		//ゲームオーバーのアップデート処理
+		GameOverUpdate();
 	}
 }
 
 void Stage::Draw()
 {
 	if (stageState == 0) {
-		//タイトル画面の描画処理
+		TitleDraw();
 	}
 	else if (stageState == 1) {
-		DrawAllObjects();
-		int fsize = GetFontSize();
-		SetFontSize(fsize * 2);
-		DrawFormatString(10, 10, GetColor(255, 255, 255), "SCORE:%llu", gameScore_);
-		SetFontSize(fsize);
+		PlayDraw();
 	}
 	else if (stageState == 2) {
 		//ゲームオーバーの描画処理
+		GameOverDraw();
 	}
 }
 
@@ -312,6 +181,25 @@ void Stage::DeleteEnemy()
 
 void Stage::DeleteEffect()
 {
+	//死んでる敵を消す
+	for (auto& itr : objects) {
+		if (itr->GetType() == OBJ_TYPE::EFFECT) {
+			ExplosionEffect* b = (ExplosionEffect*)(itr);
+			if (b->IsFinished() == true) {
+				delete b;
+				itr = nullptr;//ポインタをnullptrにしておく
+			}
+		}
+	}
+	//次に、箱の中身を確認して、nullptrがあったら箱から消す
+	for (auto it = objects.begin(); it != objects.end();) {
+		if (*it == nullptr) {
+			it = objects.erase(it);
+		}
+		else {
+			it++;
+		}
+	}
 }
 
 void Stage::shootBullet()
@@ -331,4 +219,196 @@ void Stage::shootBullet()
 
 	Bullet* b = new Bullet(pos, v, bcol, r, life);
 	AddObject(b);
+}
+
+void Stage::TitleUpdate()
+{
+	if (Input::IsKeyDown(KEY_INPUT_NUMPADENTER)) {
+		stageState = 1;
+	}
+}
+
+void Stage::PlayUpdate()
+{
+	//プレイヤーvs敵の当たり判定
+	Player_vs_Enemy();
+	//敵vs弾の当たり判定
+	Enemy_vs_Bullet();
+
+	//賞味期限切れの弾を消す
+	DeleteBullet();
+	//死んでる敵を消す
+	DeleteEnemy();
+	//エフェクトを消す
+	DeleteEffect();
+
+	//すべてのオブジェクトを更新
+	UpdateAllObjects();
+
+	//Zキーが押されたら弾丸を生成
+	if (Input::IsKeyDown(KEY_INPUT_Z)) {
+		shootBullet();
+	}
+}
+
+void Stage::GameOverUpdate()
+{
+	if () {
+		GameOverDraw();
+		if (Input::IsKeyDown(KEY_INPUT_SPACE)) {
+			stageState = 0;
+		}
+	}
+}
+
+void Stage::TitleDraw()
+{
+	//タイトル画面の描画処理
+	int fsize = GetFontSize();
+	SetFontSize(80);
+	SetFontThickness(10);
+	DrawString(335, 200, "ASTEROIDS", GetColor(255, 0, 0), gameScore_);//影
+	DrawString(331, 196, "ASTEROIDS", GetColor(255, 255, 255), gameScore_);//手前
+	SetFontSize(fsize);
+
+	SetFontSize(fsize * 2);
+	DrawString(355, 400, "Enterキーで開始する", GetColor(255, 255, 255), gameScore_);
+	SetFontSize(fsize);
+}
+
+void Stage::PlayDraw()
+{
+	DrawAllObjects();
+	int fsize = GetFontSize();
+	SetFontSize(fsize * 2);
+	DrawFormatString(10, 10, GetColor(255, 255, 255), "SCORE:%llu", gameScore_);
+	SetFontSize(fsize);
+}
+
+void Stage::GameOverDraw()
+{
+	static int gTimer = 0;
+	gTimer++;
+	static bool colorFlag = false;
+	if (gTimer >= 5) {
+		colorFlag = !colorFlag;
+		gTimer = 0;
+	}
+	unsigned int color = colorFlag ? GetColor(255, 0, 0) : GetColor(255, 255, 255);
+	int fsize = GetFontSize();
+	SetFontSize(80);
+	SetFontThickness(10);
+	DrawString(335, 200, "GAMEOVER", GetColor(255, 0, 0), gameScore_);//影
+	DrawString(331, 196, "GAMEOVER", GetColor(255, 255, 255), gameScore_);//手前
+	SetFontSize(fsize);
+}
+
+void Stage::Enemy_vs_Bullet()
+{
+	//敵vs弾の当たり判定
+	//敵の位置と、当たり判定の半径
+	//弾の位置
+	//isAlive_->falseにする手段
+	std::vector<Enemy*> aliveEnemies;
+	std::vector<Bullet*> aliveBullet;
+
+	aliveEnemies.clear();//念のため空にする
+	aliveBullet.clear();//念のため空にする
+
+	//for (int i = 0; i < objects.size(); i++){}とも書ける
+	for (auto& obj : objects) {
+		if (obj->GetType() == OBJ_TYPE::ENEMY) {
+			//baseクラスのポインタを敵クラスのポインタに変換してる
+			Enemy* e = (Enemy*)obj;
+			if (e->IsAlive()) {
+				aliveEnemies.push_back(e);
+			}
+		}
+		else if (obj->GetType() == OBJ_TYPE::BULLET) {
+			//baseクラスのポインタを敵クラスのポインタに変換してる
+			Bullet* b = (Bullet*)obj;
+			if (!b->IsDead()) {
+				aliveBullet.push_back(b);
+			}
+		}
+	}
+
+	for (auto& bullet : aliveBullet) {
+		for (auto& enemy : aliveEnemies) {
+			float dist = Math2D::Length(Math2D::Sub(bullet->GetPos(), enemy->GetPos()));
+			if (dist < enemy->GetCollisionRadius()) {
+				//当たった
+				enemy->Dead();//敵を消す
+				int sc[3] = { 20, 50, 100 };//大中小のスコア
+				gameScore_ += sc[enemy->GetSize()];//スコア加算
+				//TODO
+				//分裂の処理をここでやりたい
+				//大か中か小かを判定して
+				//大なら中を2～4つ、中なら小を2～4つ、小なら消してエフェクト生成
+				if (enemy->GetSize() != Enemy::Size::SMALL) {
+					int num = GetRand(3) + 2;//2～4のランダムな数
+					//大きさによって、分裂数変えると素敵
+					for (int i = 0; i < num; i++) {
+						Enemy* e = nullptr;
+						if (enemy->GetSize() == Enemy::Size::LARGE) {
+							e = new Enemy(Enemy::Size::MEDIUM, 8);
+						}
+						else {
+							e = new Enemy(Enemy::Size::SMALL, 8);
+						}
+						e->SetPos(enemy->GetPos());
+						//速さの設定は必要
+						e->SetVel({ (float)(GetRand(200) - 100), (float)(GetRand(200) - 100) });
+						AddObject(e);
+					}
+				}
+				else {
+					ExplosionEffect* effect = new ExplosionEffect(enemy->GetPos());
+					effect->SetCharaColor(GetColor(GetRand(255), GetRand(255), GetRand(255)));
+					AddObject(effect);
+				}
+				bullet->Dead();//弾も消す
+			}
+		}
+	}
+}
+
+void Stage::Player_vs_Enemy()
+{
+	std::vector<Enemy*> aliveEnemies;
+	aliveEnemies.clear();//念のため空にする
+	Player* player = nullptr;
+
+	for (auto& obj : objects) {
+		if (obj->GetType() == OBJ_TYPE::PLAYER) {
+			player = (Player*)obj;
+		}
+		else if (obj->GetType() == OBJ_TYPE::ENEMY) {
+			//baseクラスのポインタを敵クラスのポインタに変換してる
+			Enemy* e = (Enemy*)obj;
+			if (e->IsAlive()) {
+				aliveEnemies.push_back(e);
+			}
+		}
+	}
+
+	if (player == nullptr || player->IsAlive() == false)
+		return;//プレイヤーがいるかどうか
+
+	for (auto& enemy : aliveEnemies) {
+		//①敵とプレイヤーの距離を計算
+		float dist = Math2D::Length(Math2D::Sub(player->GetPos(), enemy->GetPos()));
+		//②敵とプレイヤーの当たり判定の半径を足したものより、
+		float collisionDist = player->GetCollisionRadius() + enemy->GetCollisionRadius();
+		//　距離が近かったら当たったとする
+		if (dist < collisionDist) {
+			//プレイヤーを死なせる
+			player->Dead();
+			//赤いエフェクトを生成
+			ExplosionEffect* effect = new ExplosionEffect(enemy->GetPos(), 50);
+			effect->SetCharaColor(GetColor(255, 0, 0));
+			AddObject(effect);
+			break;
+		}
+	}
 }

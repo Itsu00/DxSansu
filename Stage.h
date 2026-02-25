@@ -11,6 +11,13 @@ public:
 	Stage();
 	~Stage();
 	void Initialize();
+	void TitleUpdate();
+	void PlayUpdate();
+	void GameOverUpdate();
+	void TitleDraw();
+	void PlayDraw();
+	void GameOverDraw();
+	//ëSëÃÇÃUpdateÅADraw
 	void Update();
 	void Draw();
 	void Release();
