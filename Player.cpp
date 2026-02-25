@@ -128,6 +128,4 @@ void Player::Draw()
 				   scrPos[1].x, scrPos[1].y,
 				   scrPos[2].x, scrPos[2].y,
 				   GetColor(255, 0, 0), TRUE);
-
-	DrawFormatString(50, 50, GetColor(255, 255, 255), "RotAngleÅF%lf", angle_);
 }

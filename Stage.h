@@ -15,7 +15,10 @@ public:
 	void Draw();
 	void Release();
 private:
+	unsigned long long gameScore_;
+	void Enemy_vs_Bullet();
 	void DeleteBullet();
 	void DeleteEnemy();
+	void DeleteEffect();
 	void shootBullet();
 };
