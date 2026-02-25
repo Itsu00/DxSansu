@@ -19,9 +19,9 @@ namespace
 	const float START_RADIUS = 30.0f;
 	const float START_OMEGA = 2.0f;
 	const unsigned int START_COLOR = GetColor(255, 0, 0);
+	const float PLAYER_COLLISION_RADIUS = 15.0f;
 	const unsigned int ENEMY_MAX = 100;//敵の数
 	const unsigned int ENEMY_NUM = 8;//最初に出現する敵の数
-	Player* player = nullptr;
 
 	std::vector<Base*> objects;//すべてのオブジェクトの保管庫
 	//オブジェクトの保管庫にオブジェクトを追加する関数
@@ -45,6 +45,8 @@ namespace
 			obj->Draw();
 		}
 	}
+
+	int stageState = 0;//0:タイトル 1:プレイ中 2:ゲームオーバー
 }
 
 Stage::Stage()
@@ -57,12 +59,20 @@ Stage::~Stage()
 
 void Stage::Initialize()
 {
-	player = new Player(START_POS, START_VAL, START_COLOR,
-						START_DIR, START_RADIUS, START_OMEGA);
-	AddObject(player);
+	objects.clear();//オブジェクトの保管庫を空にする
 
-	//enemies.clear();
-	//enemies.reserve(ENEMY_NUM);
+	stageState = 0;//タイトル画面
+	
+	gameScore_ = 0;
+
+	//変数playerは、ローカル変数なので、この関数が終わると消えてしまう
+	//だから、newして動的に確保している
+	Player* player = new Player(START_POS, START_VAL, START_COLOR,
+						START_DIR, START_RADIUS, START_OMEGA);
+	//playerの当たり判定の半径を設定
+	player->SetCollisionRadius(PLAYER_COLLISION_RADIUS);
+	//オブジェクトの保管庫にplayerを追加
+	AddObject(player);
 
 	for (int i = 0; i < ENEMY_NUM; i++)
 	{
@@ -70,32 +80,45 @@ void Stage::Initialize()
 		Enemy* e = new Enemy(Enemy::Size::LARGE, segment);
 		AddObject(e);
 	}
-
-	gameScore_ = 0;
 }
 
 void Stage::Update()
 {
-	//敵vs弾の当たり判定
-	Enemy_vs_Bullet();
-	//賞味期限切れの弾を消す
-	DeleteBullet();
-	//死んでる敵を消す
-	DeleteEnemy();
-	//エフェクトを消す
-	DeleteEffect();
-	//すべてのオブジェクトを更新
-	UpdateAllObjects();
-	
-	//Zキーが押されたら弾丸を生成
-	if (Input::IsKeyDown(KEY_INPUT_Z))
-	{
-		shootBullet();
+	if (stageState == 0) {
+		//タイトル画面のアップデート処理
+		//ゲームスタート用のキーが押されたら、stageStateを1にする
+		if (Input::IsKeyDown(KEY_INPUT_NUMPADENTER)){
+			stageState = 1;
+		}
+	}else if (stageState == 1){
+		//プレイヤーvs敵の当たり判定
+		Player_vs_Enemy();
+		//敵vs弾の当たり判定
+		Enemy_vs_Bullet();
+
+		//賞味期限切れの弾を消す
+		DeleteBullet();
+		//死んでる敵を消す
+		DeleteEnemy();
+		//エフェクトを消す
+		DeleteEffect();
+
+		//すべてのオブジェクトを更新
+		UpdateAllObjects();
+
+		//Zキーが押されたら弾丸を生成
+		if (Input::IsKeyDown(KEY_INPUT_Z)){
+			shootBullet();
+		}
+	}
+	else if (stageState == 2) {
+		//ゲームオーバーの処理
 	}
 }
 
 void Stage::Enemy_vs_Bullet()
 {
+	//敵vs弾の当たり判定
 	//敵の位置と、当たり判定の半径
 	//弾の位置
 	//isAlive_->falseにする手段
@@ -163,13 +186,61 @@ void Stage::Enemy_vs_Bullet()
 	}
 }
 
+void Stage::Player_vs_Enemy()
+{
+	std::vector<Enemy*> aliveEnemies;
+	aliveEnemies.clear();//念のため空にする
+	Player* player = nullptr;
+
+	for (auto& obj : objects) {
+		if (obj->GetType() == OBJ_TYPE::PLAYER) {
+			player = (Player*)obj;
+		}
+		else if (obj->GetType() == OBJ_TYPE::ENEMY) {
+			//baseクラスのポインタを敵クラスのポインタに変換してる
+			Enemy* e = (Enemy*)obj;
+			if (e->IsAlive()) {
+				aliveEnemies.push_back(e);
+			}
+		}
+	}
+
+	if (player == nullptr || player->IsAlive() == false)
+		return;//プレイヤーがいるかどうか
+
+	for (auto& enemy : aliveEnemies) {
+		//①敵とプレイヤーの距離を計算
+		float dist = Math2D::Length(Math2D::Sub(player->GetPos(), enemy->GetPos()));
+		//②敵とプレイヤーの当たり判定の半径を足したものより、
+		float collisionDist = player->GetCollisionRadius() + enemy->GetCollisionRadius();
+		//　距離が近かったら当たったとする
+		if (dist < collisionDist){
+			//プレイヤーを死なせる
+			player->Dead();
+			//赤いエフェクトを生成
+			ExplosionEffect* effect = new ExplosionEffect(enemy->GetPos(), 50);
+			effect->SetCharaColor(GetColor(255, 0, 0));
+			AddObject(effect);
+			break;
+		 }
+	}
+}
+
 void Stage::Draw()
 {
-	DrawAllObjects();
-	int fsize = GetFontSize();
-	SetFontSize(fsize * 2);
-	DrawFormatString(10, 10, GetColor(255, 255, 255), "SCORE:%llu", gameScore_);
-	SetFontSize(fsize);
+	if (stageState == 0) {
+		//タイトル画面の描画処理
+	}
+	else if (stageState == 1) {
+		DrawAllObjects();
+		int fsize = GetFontSize();
+		SetFontSize(fsize * 2);
+		DrawFormatString(10, 10, GetColor(255, 255, 255), "SCORE:%llu", gameScore_);
+		SetFontSize(fsize);
+	}
+	else if (stageState == 2) {
+		//ゲームオーバーの描画処理
+	}
 }
 
 void Stage::Release()
@@ -245,6 +316,13 @@ void Stage::DeleteEffect()
 
 void Stage::shootBullet()
 {
+	Player* player = nullptr;
+	for (auto& obj : objects) {
+		if (obj->GetType() == OBJ_TYPE::PLAYER) {
+			player = (Player*)obj;
+		}
+	}
+
 	Vector2D pos = player->GetPos();
 	Vector2D v = Math2D::Mul(player->GetDirVec(), 300.0f);
 	unsigned int bcol = GetColor(255, 255, 255);
