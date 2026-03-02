@@ -49,13 +49,9 @@ namespace
 	int stageState = 0;//0:タイトル 1:プレイ中 2:ゲームオーバー
 }
 
-Stage::Stage()
-{
-}
+Stage::Stage(){}
 
-Stage::~Stage()
-{
-}
+Stage::~Stage(){}
 
 void Stage::Initialize()
 {
@@ -72,13 +68,13 @@ void Stage::Initialize()
 	//playerの当たり判定の半径を設定
 	player->SetCollisionRadius(PLAYER_COLLISION_RADIUS);
 	//オブジェクトの保管庫にplayerを追加
-	AddObject(player);
+	::AddObject(player);
 
 	for (int i = 0; i < ENEMY_NUM; i++)
 	{
 		int segment = GetRand(8);//8分割
 		Enemy* e = new Enemy(Enemy::Size::LARGE, segment);
-		AddObject(e);
+		::AddObject(e);
 	}
 }
 
@@ -91,6 +87,7 @@ void Stage::Update()
 	else if (stageState == 1) {
 		//プレイ画面のアップデート処理
 		PlayUpdate();
+		if (stageState == 2) return;
 	}
 	else if (stageState == 2) {
 		//ゲームオーバーのアップデート処理
@@ -112,22 +109,7 @@ void Stage::Draw()
 	}
 }
 
-void Stage::Release()
-{
-	/*delete player;
-
-	for (auto& b : bullets)
-	{
-		delete b;
-	}
-	bullets.clear();
-
-	for (auto& e : enemies)
-	{
-		delete e;
-	}
-	enemies.clear();*/
-}
+void Stage::Release(){}
 
 void Stage::DeleteBullet()
 {
@@ -218,7 +200,7 @@ void Stage::shootBullet()
 	float life = 2.0f;
 
 	Bullet* b = new Bullet(pos, v, bcol, r, life);
-	AddObject(b);
+	::AddObject(b);
 }
 
 void Stage::TitleUpdate()
@@ -232,6 +214,7 @@ void Stage::PlayUpdate()
 {
 	//プレイヤーvs敵の当たり判定
 	Player_vs_Enemy();
+	if (stageState == 2) return;
 	//敵vs弾の当たり判定
 	Enemy_vs_Bullet();
 
@@ -253,11 +236,10 @@ void Stage::PlayUpdate()
 
 void Stage::GameOverUpdate()
 {
-	if () {
-		GameOverDraw();
-		if (Input::IsKeyDown(KEY_INPUT_SPACE)) {
-			stageState = 0;
-		}
+	UpdateAllObjects();
+	DeleteEffect();
+	if (Input::IsKeyDown(KEY_INPUT_SPACE)) {
+		Initialize();
 	}
 }
 
@@ -287,19 +269,15 @@ void Stage::PlayDraw()
 
 void Stage::GameOverDraw()
 {
-	static int gTimer = 0;
-	gTimer++;
-	static bool colorFlag = false;
-	if (gTimer >= 5) {
-		colorFlag = !colorFlag;
-		gTimer = 0;
-	}
-	unsigned int color = colorFlag ? GetColor(255, 0, 0) : GetColor(255, 255, 255);
+	DrawAllObjects();
+
 	int fsize = GetFontSize();
 	SetFontSize(80);
 	SetFontThickness(10);
 	DrawString(335, 200, "GAMEOVER", GetColor(255, 0, 0), gameScore_);//影
 	DrawString(331, 196, "GAMEOVER", GetColor(255, 255, 255), gameScore_);//手前
+	SetFontSize(fsize * 2);
+	DrawString(320, 400, "SPACEキーでタイトル", GetColor(255, 255, 255));
 	SetFontSize(fsize);
 }
 
@@ -359,13 +337,13 @@ void Stage::Enemy_vs_Bullet()
 						e->SetPos(enemy->GetPos());
 						//速さの設定は必要
 						e->SetVel({ (float)(GetRand(200) - 100), (float)(GetRand(200) - 100) });
-						AddObject(e);
+						::AddObject(e);
 					}
 				}
 				else {
 					ExplosionEffect* effect = new ExplosionEffect(enemy->GetPos());
 					effect->SetCharaColor(GetColor(GetRand(255), GetRand(255), GetRand(255)));
-					AddObject(effect);
+					::AddObject(effect);
 				}
 				bullet->Dead();//弾も消す
 			}
@@ -407,7 +385,11 @@ void Stage::Player_vs_Enemy()
 			//赤いエフェクトを生成
 			ExplosionEffect* effect = new ExplosionEffect(enemy->GetPos(), 50);
 			effect->SetCharaColor(GetColor(255, 0, 0));
-			AddObject(effect);
+			::AddObject(effect);
+
+			stageState = 2;
+			gameoverTimer_ = 0;
+
 			break;
 		}
 	}

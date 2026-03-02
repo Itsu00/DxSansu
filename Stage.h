@@ -29,5 +29,5 @@ private:
 	void DeleteEnemy();
 	void DeleteEffect();
 	void shootBullet();
-	int gameoverTimer_ = 0;
+	int gameoverTimer_;
 };
