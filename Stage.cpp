@@ -229,7 +229,7 @@ void Stage::PlayUpdate()
 	UpdateAllObjects();
 
 	//ZƒL[‚ª‰Ÿ‚³‚ê‚½‚ç’eŠÛ‚ğ¶¬
-	if (Input::IsKeyDown(KEY_INPUT_Z)) {
+	if (Input::IsKeyDown(KEY_INPUT_W)) {
 		shootBullet();
 	}
 }

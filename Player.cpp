@@ -86,6 +86,7 @@ void Player::Update()
 	{
 		vertex_[i] = Math2D::TransformPoint(vertex_[i], toPos);
 	}*/
+
 	//回転処理完了
 	//[toPos*rotMat*toOrigin]*vertex_;
 	Mat2 tmp = Math2D::Multiply(rotMat, toOrigin);
@@ -98,7 +99,7 @@ void Player::Update()
 
 	dir_ = Math2D::FromAngle(angle_ + PI / 2.0f);
 
-	if (Input::IsKeepKeyDown(KEY_INPUT_SPACE))
+	if (Input::IsKeepKeyDown(KEY_INPUT_LSHIFT))
 	{
 		vel_.x = vel_.x + dir_.x * ACC * GetDeltaTime();
 		vel_.y = vel_.y + dir_.y * ACC * GetDeltaTime();
@@ -130,9 +131,4 @@ void Player::Draw()
 				   scrPos[1].x, scrPos[1].y,
 				   scrPos[2].x, scrPos[2].y,
 				   GetColor(255, 0, 0), TRUE);
-
-	//デバッグ用
-	Vector2D cp = Math2D::World2Screen(pos_);
-	DrawCircle((int)cp.x, (int)cp.y, (int)collisionRadius_,
-		GetColor(255, 255, 0), FALSE);
 }
