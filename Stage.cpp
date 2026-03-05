@@ -243,6 +243,10 @@ void Stage::GameOverUpdate()
 	}
 }
 
+void Stage::ClearUpdate()
+{
+}
+
 void Stage::TitleDraw()
 {
 	//タイトル画面の描画処理
@@ -279,6 +283,10 @@ void Stage::GameOverDraw()
 	SetFontSize(fsize * 2);
 	DrawString(320, 400, "SPACEキーでタイトル", GetColor(255, 255, 255));
 	SetFontSize(fsize);
+}
+
+void Stage::ClearDraw()
+{
 }
 
 void Stage::Enemy_vs_Bullet()
