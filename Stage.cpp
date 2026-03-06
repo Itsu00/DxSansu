@@ -21,7 +21,7 @@ namespace
 	const unsigned int START_COLOR = GetColor(255, 0, 0);
 	const float PLAYER_COLLISION_RADIUS = 15.0f;
 	const unsigned int ENEMY_MAX = 100;//敵の数
-	const unsigned int ENEMY_NUM = 8;//最初に出現する敵の数
+	const unsigned int ENEMY_NUM = 1;//最初に出現する敵の数
 
 	std::vector<Base*> objects;//すべてのオブジェクトの保管庫
 	//オブジェクトの保管庫にオブジェクトを追加する関数
@@ -46,7 +46,7 @@ namespace
 		}
 	}
 
-	int stageState = 0;//0:タイトル 1:プレイ中 2:ゲームオーバー
+	int stageState = 0;//0:タイトル 1:プレイ中 2:ゲームオーバー 3:クリア
 }
 
 Stage::Stage(){}
@@ -93,6 +93,9 @@ void Stage::Update()
 		//ゲームオーバーのアップデート処理
 		GameOverUpdate();
 	}
+	else if (stageState == 3) {
+		ClearUpdate();
+	}
 }
 
 void Stage::Draw()
@@ -107,9 +110,17 @@ void Stage::Draw()
 		//ゲームオーバーの描画処理
 		GameOverDraw();
 	}
+	else if (stageState == 3) {
+		ClearDraw();
+	}
 }
 
-void Stage::Release(){}
+void Stage::Release(){
+	for (auto obj : objects) {
+		delete obj;
+	}
+	objects.clear();
+}
 
 void Stage::DeleteBullet()
 {
@@ -212,21 +223,40 @@ void Stage::TitleUpdate()
 
 void Stage::PlayUpdate()
 {
-	//プレイヤーvs敵の当たり判定
+	//当たり判定
 	Player_vs_Enemy();
 	if (stageState == 2) return;
-	//敵vs弾の当たり判定
 	Enemy_vs_Bullet();
 
-	//賞味期限切れの弾を消す
+	//消す処理
 	DeleteBullet();
-	//死んでる敵を消す
 	DeleteEnemy();
-	//エフェクトを消す
 	DeleteEffect();
 
 	//すべてのオブジェクトを更新
 	UpdateAllObjects();
+
+	bool isAnyEnemyAlive = false;
+	for (const auto& obj : objects) {
+		if (obj->GetType() == OBJ_TYPE::ENEMY) {
+			isAnyEnemyAlive = true;
+			break;
+		}
+	}
+	if (!isAnyEnemyAlive) {
+		stageState = 3;
+	}
+	for (int i = 0; i < 15; i++) {//15発くらい
+		//画面内側の少し余裕を持たせたランダム座標
+		float fx = (float)(GetRand(WIN_WIDTH - 200) + 100);
+		float fy = (float)(GetRand(WIN_HEIGHT - 200) + 100);
+		Vector2D firePos = { fx, fy };
+
+		ExplosionEffect* firework = new ExplosionEffect(firePos, 80);//大きさ
+
+		firework->SetCharaColor(GetColor(GetRand(255), GetRand(255), GetRand(255)));//ランダム色
+		::AddObject(firework);//保管庫に追加
+	}
 
 	//Zキーが押されたら弾丸を生成
 	if (Input::IsKeyDown(KEY_INPUT_W)) {
@@ -245,6 +275,11 @@ void Stage::GameOverUpdate()
 
 void Stage::ClearUpdate()
 {
+	UpdateAllObjects();
+	DeleteEffect();
+	if (Input::IsKeyDown(KEY_INPUT_SPACE)) {
+		Initialize();
+	}
 }
 
 void Stage::TitleDraw()
@@ -253,12 +288,12 @@ void Stage::TitleDraw()
 	int fsize = GetFontSize();
 	SetFontSize(80);
 	SetFontThickness(10);
-	DrawString(335, 200, "ASTEROIDS", GetColor(255, 0, 0), gameScore_);//影
-	DrawString(331, 196, "ASTEROIDS", GetColor(255, 255, 255), gameScore_);//手前
+	DrawString(WIN_WIDTH / 3.2 + 4, WIN_HEIGHT / 3 + 4, "ASTEROIDS", GetColor(255, 0, 0), gameScore_);//影
+	DrawString(WIN_WIDTH / 3.2, WIN_HEIGHT / 3, "ASTEROIDS", GetColor(255, 255, 255), gameScore_);//手前
 	SetFontSize(fsize);
 
 	SetFontSize(fsize * 2);
-	DrawString(355, 400, "Enterキーで開始する", GetColor(255, 255, 255), gameScore_);
+	DrawString(WIN_WIDTH / 3, WIN_HEIGHT / 2, "Enterキーで開始する", GetColor(255, 255, 255), gameScore_);
 	SetFontSize(fsize);
 }
 
@@ -276,17 +311,42 @@ void Stage::GameOverDraw()
 	DrawAllObjects();
 
 	int fsize = GetFontSize();
+	SetFontSize(100);
+	SetFontThickness(10);
+	DrawString(WIN_WIDTH / 3.5 + 4, WIN_HEIGHT / 4 + 4, "GAMEOVER", GetColor(255, 0, 0), gameScore_);//影
+	DrawString(WIN_WIDTH / 3.5, WIN_HEIGHT / 4, "GAMEOVER", GetColor(255, 255, 255), gameScore_);//手前
+	
+	char scoreText[64];
 	SetFontSize(80);
 	SetFontThickness(10);
-	DrawString(335, 200, "GAMEOVER", GetColor(255, 0, 0), gameScore_);//影
-	DrawString(331, 196, "GAMEOVER", GetColor(255, 255, 255), gameScore_);//手前
+	DrawFormatString(291, 350, GetColor(255, 255, 255), "SCORE:%llu", gameScore_);
+
 	SetFontSize(fsize * 2);
-	DrawString(320, 400, "SPACEキーでタイトル", GetColor(255, 255, 255));
+	DrawString(WIN_WIDTH / 3, WIN_HEIGHT / 1.65, "SPACEキーでタイトル", GetColor(255, 255, 255));
 	SetFontSize(fsize);
 }
 
 void Stage::ClearDraw()
 {
+	DrawAllObjects();
+
+	UpdateAllObjects();
+	DeleteEffect();
+
+	int fsize = GetFontSize();
+	SetFontSize(100);
+	SetFontThickness(10);
+	DrawString(WIN_WIDTH / 3 + 4, WIN_HEIGHT / 4 + 4, "CLEAR!", GetColor(10, 10, 40), gameScore_);//影
+	DrawString(WIN_WIDTH / 3, WIN_HEIGHT / 4, "CLEAR!", GetColor(255, 215, 0), gameScore_);//手前
+	
+	char scoreText[64];
+	SetFontSize(80);
+	SetFontThickness(10);
+	DrawFormatString(291, 350, GetColor(255, 255, 255), "SCORE:%llu", gameScore_);
+	
+	SetFontSize(fsize * 2);
+	DrawString(WIN_WIDTH / 3, WIN_HEIGHT / 1.65, "SPACEキーでタイトル", GetColor(200, 200, 200));
+	SetFontSize(fsize);
 }
 
 void Stage::Enemy_vs_Bullet()
