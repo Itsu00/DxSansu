@@ -26,6 +26,7 @@ public:
 	void Update();
 	void Draw();
 	void Release();
+
 private:
 	unsigned long long gameScore_;
 	void Enemy_vs_Bullet();
@@ -34,5 +35,12 @@ private:
 	void DeleteEnemy();
 	void DeleteEffect();
 	void shootBullet();
-	int gameoverTimer_;
+	float gameoverTimer_;
+	float clearTimer_;
+
+	struct Star {
+		float x, y;
+		unsigned int color;
+	};
+	std::vector<Star> stars_; // êØÇÃÉäÉXÉg
 };

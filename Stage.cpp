@@ -76,6 +76,19 @@ void Stage::Initialize()
 		Enemy* e = new Enemy(Enemy::Size::LARGE, segment);
 		::AddObject(e);
 	}
+
+	stars_.clear();
+	for (int i = 0; i < 100; i++) { // 星を100個くらい
+		Star s;
+		s.x = (float)GetRand(WIN_WIDTH);
+		s.y = (float)GetRand(WIN_HEIGHT);
+
+		// 真っ白より、少し暗いグレーや青白い色を混ぜるとリアル
+		int brightness = GetRand(150) + 100;
+		s.color = GetColor(brightness, brightness, brightness);
+
+		stars_.push_back(s);
+	}
 }
 
 void Stage::Update()
@@ -87,7 +100,7 @@ void Stage::Update()
 	else if (stageState == 1) {
 		//プレイ画面のアップデート処理
 		PlayUpdate();
-		if (stageState == 2) return;
+		if (stageState != 1) return;
 	}
 	else if (stageState == 2) {
 		//ゲームオーバーのアップデート処理
@@ -100,6 +113,12 @@ void Stage::Update()
 
 void Stage::Draw()
 {
+	// 星の描画
+	for (const auto& s : stars_) {
+		// 半径1の塗りつぶし円。これくらいが星には丁度いいです
+		DrawCircle((int)s.x, (int)s.y, 1, s.color, TRUE);
+	}
+
 	if (stageState == 0) {
 		TitleDraw();
 	}
@@ -246,18 +265,7 @@ void Stage::PlayUpdate()
 	}
 	if (!isAnyEnemyAlive) {
 		stageState = 3;
-
-		for (int i = 0; i < 15; i++) {//15発くらい
-		//画面内側の少し余裕を持たせたランダム座標
-		float fx = (float)(GetRand(WIN_WIDTH - 200) + 100);
-		float fy = (float)(GetRand(WIN_HEIGHT - 200) + 100);
-		Vector2D firePos = { fx, fy };
-
-		ExplosionEffect* firework = new ExplosionEffect(firePos, 80);//大きさ
-
-		firework->SetCharaColor(GetColor(GetRand(255), GetRand(255), GetRand(255)));//ランダム色
-		::AddObject(firework);//保管庫に追加
-		}
+		clearTimer_ = 0;
 	}
 
 	//Zキーが押されたら弾丸を生成
@@ -277,6 +285,15 @@ void Stage::GameOverUpdate()
 
 void Stage::ClearUpdate()
 {
+	clearTimer_++;
+	if ((int)clearTimer_ % 15 == 0) {//15フレームごとにランダム
+		float fx = (float)(GetRand(WIN_WIDTH - 200) + 100);
+		float fy = (float)(GetRand(WIN_HEIGHT - 200) + 100);
+		ExplosionEffect* firework = new ExplosionEffect({ fx, fy }, 60 + GetRand(40));
+		firework->SetCharaColor(GetColor(GetRand(255), GetRand(255), GetRand(255)));
+		::AddObject(firework);
+	}
+
 	UpdateAllObjects();
 	DeleteEffect();
 	if (Input::IsKeyDown(KEY_INPUT_SPACE)) {
@@ -295,7 +312,7 @@ void Stage::TitleDraw()
 	SetFontSize(fsize);
 
 	SetFontSize(fsize * 2);
-	DrawString(WIN_WIDTH / 3, WIN_HEIGHT / 2, "Enterキーで開始する", GetColor(255, 255, 255), gameScore_);
+	DrawString(WIN_WIDTH / 3, WIN_HEIGHT / 2, "Enterキーでプレイ", GetColor(255, 255, 255));
 	SetFontSize(fsize);
 }
 
@@ -331,9 +348,6 @@ void Stage::GameOverDraw()
 void Stage::ClearDraw()
 {
 	DrawAllObjects();
-
-	UpdateAllObjects();
-	DeleteEffect();
 
 	int fsize = GetFontSize();
 	SetFontSize(100);
