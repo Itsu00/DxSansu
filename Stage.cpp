@@ -21,7 +21,7 @@ namespace
 	const unsigned int START_COLOR = GetColor(255, 0, 0);
 	const float PLAYER_COLLISION_RADIUS = 15.0f;
 	const unsigned int ENEMY_MAX = 100;//敵の数
-	const unsigned int ENEMY_NUM = 3;//最初に出現する敵の数
+	const unsigned int ENEMY_NUM = 5;//最初に出現する敵の数
 
 	static unsigned long long highScore_ = 0;//ハイスコア用
 
