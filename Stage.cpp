@@ -371,6 +371,7 @@ void Stage::GameOverDraw()
 	DrawString(scoreX, scoreY, scoreText, GetColor(255, 255, 255));
 	
 	SetFontSize(fsize * 2);
+	SetFontThickness(10);
 	char hiScoreText[64];
 	sprintf_s(hiScoreText, "HI-SCORE:%llu", highScore_);
 	int hiScoreWidth = GetDrawStringWidth(hiScoreText, (int)strlen(hiScoreText));
@@ -379,6 +380,7 @@ void Stage::GameOverDraw()
 	DrawString(hiScoreX, hiScoreY, hiScoreText, GetColor(255, 255, 0));
 
 	SetFontSize(fsize * 2);
+	SetFontThickness(10);
 	const char* msgStr = "Space Key for title";
 	int msgWidth = GetDrawStringWidth(msgStr, (int)strlen(msgStr));
 	int msgX = (WIN_WIDTH - msgWidth) / 2;
@@ -407,15 +409,24 @@ void Stage::ClearDraw()
 	sprintf_s(scoreText, "SCORE : %llu", gameScore_);
 	int scoreWidth = GetDrawStringWidth(scoreText, (int)strlen(scoreText));
 	int scoreX = (WIN_WIDTH - scoreWidth) / 2;
-	int scoreY = clearY + 200 + 20;
+	int scoreY = clearY + 220;
 	DrawString(scoreX, scoreY, scoreText, GetColor(255, 255, 255));
+
+	SetFontSize(fsize * 2);
+	SetFontThickness(10);
+	char hiScoreText[64];
+	sprintf_s(hiScoreText, "HI-SCORE:%llu", highScore_);
+	int hiScoreWidth = GetDrawStringWidth(hiScoreText, (int)strlen(hiScoreText));
+	int hiScoreX = (WIN_WIDTH - hiScoreWidth) / 2;
+	int hiScoreY = scoreY + 100;
+	DrawString(hiScoreX, hiScoreY, hiScoreText, GetColor(255, 255, 0));
 	
 	SetFontSize(fsize * 2);
 	SetFontThickness(10);
 	const char* spaceStr = "Space Key for title";
 	int spaceWidth = GetDrawStringWidth(spaceStr, (int)strlen(spaceStr));
 	int spaceX = (WIN_WIDTH - spaceWidth) / 2;
-	int spaceY = scoreY + 80 + 50;
+	int spaceY = hiScoreY + 80;
 	DrawString(spaceX, spaceY, spaceStr, GetColor(200, 200, 200));
 	SetFontSize(fsize);
 }
