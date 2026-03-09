@@ -35,6 +35,7 @@ private:
 	void DeleteEnemy();
 	void DeleteEffect();
 	void shootBullet();
+	void UpdateHighScore();
 	float gameoverTimer_;
 	float clearTimer_;
 

@@ -23,6 +23,8 @@ namespace
 	const unsigned int ENEMY_MAX = 100;//敵の数
 	const unsigned int ENEMY_NUM = 3;//最初に出現する敵の数
 
+	static unsigned long long highScore_ = 0;//ハイスコア用
+
 	std::vector<Base*> objects;//すべてのオブジェクトの保管庫
 	//オブジェクトの保管庫にオブジェクトを追加する関数
 	void AddObject(Base* obj)
@@ -233,6 +235,13 @@ void Stage::shootBullet()
 	::AddObject(b);
 }
 
+void Stage::UpdateHighScore()
+{
+	if (gameScore_ > highScore_) {
+		highScore_ = gameScore_;
+	}
+}
+
 void Stage::TitleUpdate()
 {
 	if (Input::IsKeyDown(KEY_INPUT_NUMPADENTER)) {
@@ -276,6 +285,7 @@ void Stage::PlayUpdate()
 
 void Stage::GameOverUpdate()
 {
+	UpdateHighScore();
 	UpdateAllObjects();
 	DeleteEffect();
 	if (Input::IsKeyDown(KEY_INPUT_SPACE)) {
@@ -285,6 +295,7 @@ void Stage::GameOverUpdate()
 
 void Stage::ClearUpdate()
 {
+	UpdateHighScore();
 	clearTimer_++;
 	if ((int)clearTimer_ % 15 == 0) {//15フレームごとにランダム
 		float fx = (float)(GetRand(WIN_WIDTH - 200) + 100);
@@ -312,7 +323,7 @@ void Stage::TitleDraw()
 	SetFontSize(fsize);
 
 	SetFontSize(fsize * 2);
-	DrawString(WIN_WIDTH / 3, WIN_HEIGHT / 2, "Play with Enter key", GetColor(255, 255, 255));
+	DrawString(WIN_WIDTH / 3, WIN_HEIGHT / 2, "Play with Enter key", GetColor(200, 200, 200));
 	SetFontSize(fsize);
 }
 
@@ -322,6 +333,9 @@ void Stage::PlayDraw()
 	int fsize = GetFontSize();
 	SetFontSize(fsize * 2);
 	DrawFormatString(10, 10, GetColor(255, 255, 255), "SCORE : %llu", gameScore_);
+
+	SetFontSize(30);
+	DrawFormatString(WIN_WIDTH / 2 - 100, 10, GetColor(255, 255, 0), "HI-SCORE : %llu", highScore_);
 	SetFontSize(fsize);
 }
 
@@ -330,18 +344,38 @@ void Stage::GameOverDraw()
 	DrawAllObjects();
 
 	int fsize = GetFontSize();
-	SetFontSize(100);
-	SetFontThickness(10);
-	DrawString(WIN_WIDTH / 3.5 + 4, WIN_HEIGHT / 4 + 4, "GAMEOVER", GetColor(255, 0, 0), gameScore_);//影
-	DrawString(WIN_WIDTH / 3.5, WIN_HEIGHT / 4, "GAMEOVER", GetColor(255, 255, 255), gameScore_);//手前
+	SetFontSize(200);
+	SetFontThickness(20);
+	const char* overStr = "GAMEOVER";
+	int overWidth = GetDrawStringWidth(overStr, (int)strlen(overStr));
+	int overX = (WIN_WIDTH - overWidth) / 2;
+	int overY = WIN_HEIGHT / 4;
+	DrawString(overX + 4, overY + 4, "GAMEOVER", GetColor(255, 0, 0), gameScore_);//影
+	DrawString(overX, overY, "GAMEOVER", GetColor(255, 255, 255), gameScore_);//手前
 	
-	char scoreText[64];
 	SetFontSize(80);
 	SetFontThickness(10);
-	DrawFormatString(291, 350, GetColor(255, 255, 255), "SCORE:%llu", gameScore_);
+	char scoreText[64];
+	sprintf_s(scoreText, "SCORE:%llu", gameScore_);
+	int scoreWidth = GetDrawStringWidth(scoreText, (int)strlen(scoreText));
+	int scoreX = (WIN_WIDTH - scoreWidth) / 2;
+	int scoreY = overY + 220;
+	DrawString(scoreX, scoreY, scoreText, GetColor(255, 255, 255));
+	
+	SetFontSize(fsize * 2);
+	char hiScoreText[64];
+	sprintf_s(hiScoreText, "HI-SCORE:%llu", highScore_);
+	int hiScoreWidth = GetDrawStringWidth(hiScoreText, (int)strlen(hiScoreText));
+	int hiScoreX = (WIN_WIDTH - hiScoreWidth) / 2;
+	int hiScoreY = scoreY + 100;
+	DrawString(hiScoreX, hiScoreY, hiScoreText, GetColor(255, 255, 0));
 
 	SetFontSize(fsize * 2);
-	DrawString(WIN_WIDTH / 3, WIN_HEIGHT / 1.65, "Space Key for title", GetColor(255, 255, 255));
+	const char* msgStr = "Space Key for title";
+	int msgWidth = GetDrawStringWidth(msgStr, (int)strlen(msgStr));
+	int msgX = (WIN_WIDTH - msgWidth) / 2;
+	int msgY = hiScoreY + 80;
+	DrawString(msgX, msgY, msgStr, GetColor(200, 200, 200));
 	SetFontSize(fsize);
 }
 
