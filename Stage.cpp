@@ -316,14 +316,22 @@ void Stage::TitleDraw()
 {
 	//タイトル画面の描画処理
 	int fsize = GetFontSize();
-	SetFontSize(80);
-	SetFontThickness(10);
-	DrawString(WIN_WIDTH / 3.2 + 4, WIN_HEIGHT / 3 + 4, "ASTEROIDS", GetColor(255, 0, 0), gameScore_);//影
-	DrawString(WIN_WIDTH / 3.2, WIN_HEIGHT / 3, "ASTEROIDS", GetColor(255, 255, 255), gameScore_);//手前
-	SetFontSize(fsize);
+	SetFontSize(200);
+	SetFontThickness(20);
+	const char* titleStr = "ASTEROIDS";
+	int titleWidth = GetDrawStringWidth(titleStr, (int)strlen(titleStr));
+	int titleX = (WIN_WIDTH - titleWidth) / 2;
+	int titleY = WIN_HEIGHT / 4;
+	DrawString(titleX + 4, titleY + 4, titleStr, GetColor(255, 0, 0));//影
+	DrawString(titleX, titleY, titleStr, GetColor(255, 255, 255));//手前
 
 	SetFontSize(fsize * 2);
-	DrawString(WIN_WIDTH / 3, WIN_HEIGHT / 2, "Play with Enter key", GetColor(200, 200, 200));
+	SetFontThickness(10);
+	const char* enterStr = "Play with Enter key";
+	int spaceWidth = GetDrawStringWidth(enterStr, (int)strlen(enterStr));
+	int spaceX = (WIN_WIDTH - spaceWidth) / 2;
+	int spaceY = titleY + 250;
+	DrawString(spaceX, spaceY, enterStr, GetColor(200, 200, 200));
 	SetFontSize(fsize);
 }
 
@@ -350,8 +358,8 @@ void Stage::GameOverDraw()
 	int overWidth = GetDrawStringWidth(overStr, (int)strlen(overStr));
 	int overX = (WIN_WIDTH - overWidth) / 2;
 	int overY = WIN_HEIGHT / 4;
-	DrawString(overX + 4, overY + 4, "GAMEOVER", GetColor(255, 0, 0), gameScore_);//影
-	DrawString(overX, overY, "GAMEOVER", GetColor(255, 255, 255), gameScore_);//手前
+	DrawString(overX + 4, overY + 4, overStr, GetColor(255, 0, 0));//影
+	DrawString(overX, overY, overStr, GetColor(255, 255, 255));//手前
 	
 	SetFontSize(80);
 	SetFontThickness(10);
