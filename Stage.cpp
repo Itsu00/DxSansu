@@ -21,7 +21,7 @@ namespace
 	const unsigned int START_COLOR = GetColor(255, 0, 0);
 	const float PLAYER_COLLISION_RADIUS = 15.0f;
 	const unsigned int ENEMY_MAX = 100;//敵の数
-	const unsigned int ENEMY_NUM = 1;//最初に出現する敵の数
+	const unsigned int ENEMY_NUM = 3;//最初に出現する敵の数
 
 	std::vector<Base*> objects;//すべてのオブジェクトの保管庫
 	//オブジェクトの保管庫にオブジェクトを追加する関数
@@ -312,7 +312,7 @@ void Stage::TitleDraw()
 	SetFontSize(fsize);
 
 	SetFontSize(fsize * 2);
-	DrawString(WIN_WIDTH / 3, WIN_HEIGHT / 2, "Enterキーでプレイ", GetColor(255, 255, 255));
+	DrawString(WIN_WIDTH / 3, WIN_HEIGHT / 2, "Play with Enter key", GetColor(255, 255, 255));
 	SetFontSize(fsize);
 }
 
@@ -321,7 +321,7 @@ void Stage::PlayDraw()
 	DrawAllObjects();
 	int fsize = GetFontSize();
 	SetFontSize(fsize * 2);
-	DrawFormatString(10, 10, GetColor(255, 255, 255), "SCORE:%llu", gameScore_);
+	DrawFormatString(10, 10, GetColor(255, 255, 255), "SCORE : %llu", gameScore_);
 	SetFontSize(fsize);
 }
 
@@ -341,7 +341,7 @@ void Stage::GameOverDraw()
 	DrawFormatString(291, 350, GetColor(255, 255, 255), "SCORE:%llu", gameScore_);
 
 	SetFontSize(fsize * 2);
-	DrawString(WIN_WIDTH / 3, WIN_HEIGHT / 1.65, "SPACEキーでタイトル", GetColor(255, 255, 255));
+	DrawString(WIN_WIDTH / 3, WIN_HEIGHT / 1.65, "Space Key for title", GetColor(255, 255, 255));
 	SetFontSize(fsize);
 }
 
@@ -350,18 +350,31 @@ void Stage::ClearDraw()
 	DrawAllObjects();
 
 	int fsize = GetFontSize();
-	SetFontSize(100);
-	SetFontThickness(10);
-	DrawString(WIN_WIDTH / 3 + 4, WIN_HEIGHT / 4 + 4, "CLEAR!", GetColor(10, 10, 40), gameScore_);//影
-	DrawString(WIN_WIDTH / 3, WIN_HEIGHT / 4, "CLEAR!", GetColor(255, 215, 0), gameScore_);//手前
+	SetFontSize(200);
+	SetFontThickness(20);
+	const char* clearStr = "CLEAR!";
+	int clearWidth = GetDrawStringWidth(clearStr, (int)strlen(clearStr));
+	int clearX = (WIN_WIDTH - clearWidth) / 2 + 15;
+	int clearY = WIN_HEIGHT / 4;
+	DrawString(clearX + 8, clearY + 8, clearStr, GetColor(10, 10, 40));//影
+	DrawString(clearX, clearY, clearStr, GetColor(255, 215, 0));//手前
 	
-	char scoreText[64];
 	SetFontSize(80);
 	SetFontThickness(10);
-	DrawFormatString(291, 350, GetColor(255, 255, 255), "SCORE:%llu", gameScore_);
+	char scoreText[64];
+	sprintf_s(scoreText, "SCORE : %llu", gameScore_);
+	int scoreWidth = GetDrawStringWidth(scoreText, (int)strlen(scoreText));
+	int scoreX = (WIN_WIDTH - scoreWidth) / 2;
+	int scoreY = clearY + 200 + 20;
+	DrawString(scoreX, scoreY, scoreText, GetColor(255, 255, 255));
 	
 	SetFontSize(fsize * 2);
-	DrawString(WIN_WIDTH / 3, WIN_HEIGHT / 1.65, "SPACEキーでタイトル", GetColor(200, 200, 200));
+	SetFontThickness(10);
+	const char* spaceStr = "Space Key for title";
+	int spaceWidth = GetDrawStringWidth(spaceStr, (int)strlen(spaceStr));
+	int spaceX = (WIN_WIDTH - spaceWidth) / 2;
+	int spaceY = scoreY + 80 + 50;
+	DrawString(spaceX, spaceY, spaceStr, GetColor(200, 200, 200));
 	SetFontSize(fsize);
 }
 
